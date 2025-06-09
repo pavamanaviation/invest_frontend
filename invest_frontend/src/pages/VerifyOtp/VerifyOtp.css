@@ -1,0 +1,30 @@
+
+
+.otp-text{
+  font-size: 14px;
+  color: grey;
+}
+
+.otp-text-btn{
+  color: #003366;
+  font-weight: bold
+}
+
+.resend-otp-section{
+    margin: 30px auto;
+}
+
+.resend-timer{
+    color: #888;
+}
+.resend-btn {
+  background-color: transparent;
+  color: #003366;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+}
+.resend-btn:hover {
+  text-decoration: underline;
+}

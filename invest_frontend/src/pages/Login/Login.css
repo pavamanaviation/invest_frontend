@@ -19,11 +19,14 @@
   margin-bottom: 20px;
 }
 
-/* h2 {
-  font-size: 22px;
-  margin-bottom: 20px;
+.login-heading{
   font-weight: 600;
-} */
+    font-size: 28px;
+    line-height: 40px;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
 .google-login-btn {
   display: flex;
@@ -38,6 +41,8 @@
   cursor: pointer;
   font-weight: 500;
   margin-bottom: 16px;
+  height: 48px;
+font-family: inherit;
 }
 
 .google-login-btn img {
@@ -65,13 +70,23 @@
   font-size: 14px;
 }
 
-input[type="text"] {
+.login-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
   padding: 10px;
-  font-size: 15px;
-  margin-bottom: 14px;
+  border: 1px solid #999;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  background-color: white;
+  font-weight: 500;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  height: 48px;
+
+      font-size: 16px;
+    font-family: inherit;
 }
 
 .continue-btn {
@@ -83,6 +98,9 @@ input[type="text"] {
   border-radius: 6px;
   font-weight: 600;
   cursor: not-allowed;
+  height: 48px;
+  font-size: 14px;
+
 }
 
 .continue-btn:enabled {
@@ -104,16 +122,61 @@ input[type="text"] {
 
 .back-home {
   margin-top: 10px;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .back-home a {
   text-decoration: none;
   color: #333;
+  font-weight: 600;
+    font-size: 16px;
+    line-height: 16px;
+    border-bottom: 1px solid;
 }
 
 footer {
   font-size: 12px;
   color: #aaa;
   margin-top: 30px;
+}
+
+.phone-input-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.phone-input-container .form-control {
+  width: 100% !important;
+  height: 48px !important;
+  padding: 10px 10px 10px 60px !important; /* left padding for flag */
+  border-radius: 6px !important;
+  border: 1px solid #999 !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  box-sizing: border-box !important;
+  background-color: white !important;
+  display: flex !important;
+  align-items: center !important;
+  outline: none !important;
+}
+
+.phone-input-container .flag-dropdown {
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  height: 48px !important;
+  border-radius: 6px 0 0 6px !important;
+  border: 1px solid #999 !important;
+  background-color: white !important;
+  z-index: 2 !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 8px !important;
+}
+
+.phone-input-container .flag-dropdown button {
+  height: 100% !important;
+  padding: 0 8px !important;
 }
