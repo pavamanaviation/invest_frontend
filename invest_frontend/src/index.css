@@ -1,0 +1,43 @@
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 30px;
+  width: 100%;
+}
+
+@media screen and (max-width: 992px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+
+.primary-button {
+  display: inline-block;
+  border-radius: 6px;
+  vertical-align: middle;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  padding: 4px 16px;
+  height: 48px;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 24px;
+  font-family: Inter, sans-serif !important;
+  background-color: #0056b3;
+  color: #fff;
+}

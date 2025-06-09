@@ -1,0 +1,136 @@
+.home-hero-section {
+    margin: 24px auto;
+    margin-top: 100px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.home-hero-heading {
+    font-size: 36px;
+    line-height: 42px;
+    font-weight: bold;
+    display: inline-grid;
+
+    span {
+        color: #44aef0;
+    }
+}
+
+.home-hero-text {
+    margin: 20px 0;
+
+    div {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+
+    }
+}
+
+.home-hero-icon {
+    color: #44aef0;
+}
+
+.home-hero-bold {
+    font-weight: bold;
+}
+
+.home-hero-video {
+    flex: 1;
+}
+
+.video-wrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    overflow: hidden;
+    background-color: transparent;
+}
+
+.video-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 95%;
+    height: 100%;
+    border: none;
+    background-color: transparent;
+}
+
+.home-metrics-section {
+    background-color: #b5d5e9;
+    padding: 32px 0;
+}
+
+.home-metrics-container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.home-metrics-image{
+    text-align: start;
+
+    img{
+            width: 100px;
+    border-radius: 20px;
+    }
+}
+.home-metrics-text {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 700;
+    text-align: start;
+}
+
+.home-metrics-text-caption {
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 400;
+    text-align: start;
+}
+
+.home-revenue-model{
+    margin-top: 24px;
+}
+.home-revenue-image{
+    width: 90%;
+}
+
+@media screen and (max-width: 767px) {
+    .home-hero-section {
+        flex-direction: column;
+        align-items: flex-start;
+        /* Ensures left alignment on small screens */
+        gap: 32px;
+        margin-top: 60px;
+    }
+
+    .home-hero-content,
+    .home-hero-video {
+        width: 100%;
+    }
+
+    .video-wrapper {
+        width: 100%;
+    }
+
+    .home-metrics-section {
+        display: none;
+    }
+}
+
+
+@media (max-width: 375px) {
+    .home-hero-section {
+        flex-direction: column;
+    }
+
+    .video-wrapper {
+        width: 100%;
+    }
+}

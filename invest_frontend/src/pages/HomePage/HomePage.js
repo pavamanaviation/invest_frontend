@@ -1,0 +1,74 @@
+import React from "react";
+import "./HomePage.css";
+import { FaCheckCircle } from "react-icons/fa";
+import sampleImage from "../../assets/sample-1.png";
+import revenuemodel from "../../assets/revenuemodel.jpg";
+const Home = () => {
+    return (
+        <div className="homepage">
+            <div className="home-hero-section  container">
+                <div className="home-hero-content">
+                    <div className="home-hero-heading"><span>High Yield</span> Investment Platform</div>
+                    <div className="home-hero-text">
+                        <div><span className="home-hero-icon"><FaCheckCircle /></span><p><span className="home-hero-bold">High returns </span>of up to 18%* annually</p></div>
+                        <div><span className="home-hero-icon"><FaCheckCircle /></span><p><span className="home-hero-bold">Stability </span>of fixed-income</p></div>
+                    </div>
+                    <div className="home-hero-button ">
+                        <button className="primary-button">Explore Investment</button>
+                    </div>
+                </div>
+
+                <div className="home-hero-video">
+                    <div className="video-wrapper">
+
+                        <iframe
+                            width="560"
+                            height="315"
+                            src="https://www.youtube.com/embed/JA1d6S14Txg?controls=1"
+                            title="YouTube video player"
+                            frameBorder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowFullScreen
+                        ></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <div className="home-metrics-section">
+                <div className="container">
+                    <div className="home-metrics-container">
+                        <div className="home-metrics-content">
+                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-text"> Fixed Returns</div>
+                            <div className="home-metrics-text-caption">No market risk</div>
+                        </div>
+                        <div className="home-metrics-content">
+                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-text">Zero Maintenance Hassle </div>
+                            <div className="home-metrics-text-caption">We take careof everything</div>
+                        </div>
+                        <div className="home-metrics-content">
+                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-text"> Agri Tech Investment</div>
+                            <div className="home-metrics-text-caption">Promoting green innovation</div>
+                        </div>
+                        <div className="home-metrics-content">
+                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-text">Kapil Group Product</div>
+                            <div className="home-metrics-text-caption">45+ years of trust</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        <div className="home-revenue-model container">
+            <div>
+                <img src={revenuemodel} className="home-revenue-image" />
+            </div>
+        </div>
+        </div>
+    );
+
+}
+
+export default Home;
