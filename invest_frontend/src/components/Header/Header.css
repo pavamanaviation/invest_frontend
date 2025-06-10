@@ -29,7 +29,7 @@
 
 .nav-links a {
   text-decoration: none;
-    color: #0056b3;
+    color: #3A3A98;
 
   font-weight: 600;
   transition: color 0.3s;
@@ -46,9 +46,9 @@
 
 .login-btn{
   padding: 10px;
-  border: 1px solid #0056b3;
+  border: 1px solid #3A3A98;
   border-radius: 6px;
-  background-color: #0056b3;
+  background-color: #3A3A98;
   color: white;
   font-size: 14px;
   font-weight: 600;

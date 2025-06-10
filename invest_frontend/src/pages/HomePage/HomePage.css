@@ -14,7 +14,7 @@
     display: inline-grid;
 
     span {
-        color: #44aef0;
+        color: #3A3A98
     }
 }
 
@@ -31,7 +31,7 @@
 }
 
 .home-hero-icon {
-    color: #44aef0;
+    color: #3A3A98;
 }
 
 .home-hero-bold {
@@ -58,10 +58,11 @@
     height: 100%;
     border: none;
     background-color: transparent;
+    border-radius: 20px;
 }
 
 .home-metrics-section {
-    background-color: #b5d5e9;
+    background-color: #D4D7F5;
     padding: 32px 0;
 }
 

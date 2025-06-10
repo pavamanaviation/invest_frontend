@@ -30,3 +30,18 @@ export const verifyCustomerOtp = async ({ otp, email, mobile_no, first_name, las
     throw error.response?.data || { message: "OTP verification failed." };
   }
 };
+
+export const postSignup = async ({ customer_id, email, mobile_no, first_name, last_name }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/customer-register-sec-phase`, {
+      customer_id : localStorage.getItem("customer_id"),
+      email,
+      mobile_no,
+      first_name,
+      last_name,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Profile completion failed." };
+  }
+};
