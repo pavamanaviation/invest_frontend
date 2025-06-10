@@ -15,7 +15,7 @@ code {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 30px;
-  width: 100%;
+  /* width: 100%; */
 }
 
 @media screen and (max-width: 992px) {
@@ -38,6 +38,6 @@ code {
   font-size: 14px;
   line-height: 24px;
   font-family: Inter, sans-serif !important;
-  background-color: #0056b3;
+  background-color: #3A3A98;
   color: #fff;
 }
