@@ -3,18 +3,26 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { postSignup } from "../../apis/authApi";
 import "./PostSignupDetails.css";
 import PhoneInput from "react-phone-input-2";
+import PopupMessage from "../../components/PopupMessage/PopupMessage";
 
 const PostSignupPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
     const { token, email: emailFromState, mobile_no: mobileFromState } = location.state || {};
+
+    const emailFrom = emailFromState || "";
+    const mobileFrom = mobileFromState || "";
 
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [email, setEmail] = useState(emailFromState || "");
     const [mobile, setMobile] = useState(mobileFromState || "");
     const [loading, setLoading] = useState(false);
+    const [popup, setPopup] = useState({
+        isOpen: false,
+        message: "",
+        type: "info",
+    });
 
     useEffect(() => {
         if (token) {
@@ -34,13 +42,14 @@ const PostSignupPage = () => {
             navigate("/signup"); // or wherever your signup page is
         }
     }, []);
+
     const handleContinue = async () => {
         setLoading(true);
         try {
             const res = await postSignup({
                 token,
                 email: email || "",
-                mobile_no: mobile || "",
+                mobile_no: mobile.startsWith("+") ? mobile : `+${mobile}` || "",
                 first_name: firstName,
                 last_name: lastName,
             });
@@ -52,10 +61,13 @@ const PostSignupPage = () => {
                     mobile_no: mobile,
                     first_name: firstName,
                     last_name: lastName,
+                    source: "post-signup"
                 },
             });
-        } catch (err) {
-            alert(err.message || "Registration failed.");
+        } catch (error) {
+            // alert(err?err.message || "Registration failed.");
+            setPopup({ isOpen: true, message: error?.message || error?.error || "Registration failed.", type: "error" });
+
         } finally {
             setLoading(false);
         }
@@ -88,7 +100,30 @@ const PostSignupPage = () => {
                     />
                 </div>
 
-                {mobileFromState && !emailFromState && !token && (
+                {/* EMAIL SIGNUP: no token, but emailFromState exists */}
+                {!token && emailFromState && (
+                    <>
+                        {/* <input
+                            type="email"
+                            placeholder="Email"
+                            className="login-input"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                        /> */}
+                        <PhoneInput
+                            country={"in"}
+                            value={mobile}
+                            onChange={(value) => setMobile(value)}
+                            inputClass="login-input"
+                            containerClass="phone-input-container"
+                            inputProps={{ name: "mobile", required: true }}
+                            placeholder="Enter Mobile Number"
+                        />
+                    </>
+                )}
+
+                {/* MOBILE SIGNUP: no token, but mobileFromState exists */}
+                {!token && mobileFromState && (
                     <input
                         type="email"
                         placeholder="Email"
@@ -98,19 +133,8 @@ const PostSignupPage = () => {
                     />
                 )}
 
-                {emailFromState && !mobileFromState && (
-                    <PhoneInput
-                        country={"in"}
-                        value={mobile}
-                        onChange={(value) => setMobile(value)}
-                        inputClass="login-input"
-                        containerClass="phone-input-container"
-                        inputProps={{ name: "mobile", required: true }}
-                        placeholder="Enter Mobile Number"
-                    />
-                )}
-
-                {token && !mobileFromState && (
+                {/* GOOGLE SIGNUP: token present */}
+                {token && (
                     <PhoneInput
                         country={"in"}
                         value={mobile}
@@ -136,6 +160,13 @@ const PostSignupPage = () => {
                     By continuing, you agree to our <a href="#">T&Cs</a> and <a href="#">Privacy Policy</a>
                 </div>
             </div>
+            
+            <PopupMessage
+                isOpen={popup.isOpen}
+                message={popup.message}
+                type={popup.type}
+                onClose={() => setPopup({ ...popup, isOpen: false })}
+            />
         </div>
     );
 };

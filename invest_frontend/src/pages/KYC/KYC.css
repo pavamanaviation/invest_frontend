@@ -1,0 +1,210 @@
+.kyc-header {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #3A3A98;
+    border-bottom: 1px solid #999;
+
+}
+
+.kyc-content {
+    display: flex;
+    gap: 50px;
+}
+
+.kyc-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.kyc-step {
+    color: #3A3A98;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.kyc-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+.kyc-label {
+    font-size: 18px;
+}
+
+.kyc-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #999;
+    border-radius: 6px;
+    background-color: white;
+    font-weight: 500;
+    margin: 16px 0;
+    box-sizing: border-box;
+    height: 48px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.kyc-submit-btn {
+    width: 200px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.kyc-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.kyc-step-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.kyc-step-circle {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Filled dot inside (radio-button style) */
+.kyc-step-wrapper.active .kyc-step-circle::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background-color: #3A3A98;
+    /* Active/completed inner fill */
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+/* Optional: border color updates for status */
+.kyc-step-wrapper.active .kyc-step-circle {
+    border-color: #3A3A98;
+}
+
+.kyc-step-wrapper.completed .kyc-step-circle,
+.kyc-step-wrapper.completed .kyc-step-circle::after {
+    border-color: #4CAF50;
+    background-color: #4CAF50;
+}
+
+.kyc-step-wrapper.disabled .kyc-step-circle {
+    border-color: #e0e0e0;
+}
+
+
+.kyc-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+
+
+.kyc-column-full {
+    width: 100%;
+}
+
+.kyc-radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    height: 48px;
+}
+
+.kyc-radio-group label {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.kyc-row.three-columns .kyc-column {
+  flex: 0 0 calc(33.333% - 13.33px);
+  max-width: calc(33.333% - 13.33px);
+}
+.signature-canvas {
+  width: 100%;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+}
+.signature-pad-wrapper {
+  margin-bottom: 20px;
+}
+.kyc-heading{
+    font-size: 20px;
+}
+@media screen and (max-width: 992px) {
+  .kyc-row:not(.three-columns):not(.two-columns) {
+    flex-direction: column;
+  }
+
+    .kyc-row.three-columns .kyc-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+}
+
+
+@media screen and (max-width: 992px) {
+    .kyc-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .kyc-stepper {
+        flex-direction: row
+    }
+
+    .kyc-input {
+        width: 100%;
+    }
+
+    .kyc-step-wrapper {
+        flex-direction: column;
+    }
+
+
+    .kyc-content {
+        margin: auto;
+    }
+
+    .kyc-row {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 375px) {
+
+    .kyc-input {
+        width: 100%;
+    }
+
+    .kyc-content {
+        margin: auto;
+    }
+
+}

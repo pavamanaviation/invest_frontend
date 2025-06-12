@@ -41,34 +41,72 @@ const SignupPage = () => {
 
 
     // handleGoogleResponse
-    const handleGoogleResponse = async (response) => {
-        setLoading(true);
-        try {
-            const token = response.credential;
-            const res = await registerCustomer({ token });
+ const handleGoogleResponse = async (response) => {
+    setLoading(true);
+    try {
+        const token = response.credential;
+        const res = await registerCustomer({ token });
 
-            if (res.message === "Account already verified. Please proceed to next step.") {
-                setPopup({ isOpen: true, message: res.message, type: "info" });
-                setTimeout(() => {
-                    navigate("/post-signup");
+        const email = res.email || "";
+        const mobile_no = res.mobile_no || "";
 
-                }, 5000); // 5 seconds
-                return;
-            }
+        if (res.message === "Account already verified. Please proceed to next step.") {
+        sessionStorage.setItem("customer_id",res.customer_id);
+
+            setPopup({ isOpen: true, message: res.message, type: "info" });
+            setTimeout(() => {
+                navigate("/post-signup", {
+                    state: { token, email, mobile_no }
+                });
+            }, 5000);
+            return;
+        }
+
+        if (res.message === "Account already verified. Please login to continue.") {
+        sessionStorage.setItem("customer_id",res.customer_id);
+
+            setPopup({ isOpen: true, message: res.message, type: "info" });
+            setTimeout(() => {
+                navigate("/login");
+            }, 5000);
+            return;
+        }
+
+        if (res.message === "Google account verified successfully.") {
+        sessionStorage.setItem("customer_id",res.customer_id);
 
             setPopup({ isOpen: true, message: res.message, type: "success" });
-            navigate("/verify-otp", {
-                state: {
-                    email: res.email || "",
-                    mobile_no: res.mobile_no || "",
-                },
-            });
-        } catch (error) {
-            setPopup({ isOpen: true, message: error?.message || "Google Sign-in failed.", type: "error" });
-        } finally {
-            setLoading(false);
+           setTimeout(() => {
+                navigate("/post-signup", {
+                    state: { token }
+                });
+            }, 5000);
+            return;
         }
-    };
+
+
+        // Assume new signup — send to OTP
+        setPopup({ isOpen: true, message: res.message, type: "success" });
+        navigate("/verify-otp", {
+            state: {
+                customer_id: res.customer_id,
+                email,
+                mobile_no,
+                token,
+                source: "signup",
+            },
+        });
+
+    } catch (error) {
+        setPopup({
+            isOpen: true,
+            message: error?.message || "Google Sign-in failed.",
+            type: "error",
+        });
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleGoogleLoginClick = () => {
         if (window.google) {
@@ -115,17 +153,24 @@ const SignupPage = () => {
                 : { mobile_no: `+${emailOrMobile}` };
 
             const response = await registerCustomer(payload);
-                localStorage.setItem("customer_id",response.customer_id);
+            sessionStorage.setItem("customer_id", response.customer_id);
 
             if (response.message === "Account already verified. Please proceed to next step.") {
                 setPopup({ isOpen: true, message: response.message, type: "info" });
                 setTimeout(() => {
                     navigate("/post-signup", {
-                       state: {
-                        email: response.email || payload.email || "",
-                        mobile_no: response.mobile_no || payload.mobile_no || "",
-                    },
+                        state: {
+                            email: response.email || payload.email || "",
+                            mobile_no: response.mobile_no || payload.mobile_no || "",
+                        },
                     });
+
+                }, 5000); // 5 seconds
+                return;
+            }  else if (response.message === "Account already verified. Please login to continue.") {
+                setPopup({ isOpen: true, message: response.message, type: "info" });
+                setTimeout(() => {
+                    navigate("/login");
 
                 }, 5000); // 5 seconds
                 return;
@@ -136,6 +181,7 @@ const SignupPage = () => {
                 state: {
                     email: payload.email || "",
                     mobile_no: payload.mobile_no || "",
+                    source: "signup"
                 },
             });
         } catch (error) {
