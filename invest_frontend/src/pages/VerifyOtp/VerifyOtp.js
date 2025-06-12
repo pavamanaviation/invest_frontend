@@ -11,8 +11,8 @@ const VerifyOtp = () => {
   const [timer, setTimer] = useState(120); // 2 minutes = 120 seconds
   const location = useLocation();
   const navigate = useNavigate();
-
-  const { email = "", mobile_no = "" } = location.state || {};
+  const customer_id = sessionStorage.getItem("customer_id");
+  const { email = "", mobile_no = "", source = "" } = location.state || {};
   const [popup, setPopup] = useState({
     isOpen: false,
     message: "",
@@ -37,44 +37,54 @@ const VerifyOtp = () => {
   const handleOtpVerification = async () => {
     setLoading(true);
     try {
-      const response = await verifyCustomerOtp({
-        otp,
-        email,
-        mobile_no,
-      });
-    //   alert(response.message);
-        setPopup({ isOpen: true, message: "OTP verified successfully. Account is now active. " || response.message, type: "success" });
-        if(response.message === "OTP verified and login successful."){
-            navigate("/customer-dashboard")
-        }
-         navigate("/post-signup", {
-                       state: {
-                        email: response.email || "",
-                        mobile_no: response.mobile_no || "",
-                    },
-                    });
-    } catch (error) {
-    //   alert(error?.error || "OTP verification failed.");
-          setPopup({ isOpen: true, message: "OTP verification failed.", type: "error" });
+      const response = await verifyCustomerOtp({ otp, email, mobile_no , customer_id});
+      setTimeout(() => {
+        setPopup({
+          isOpen: true,
+          message: "OTP verified successfully.",
+          type: "success",
+        });
+      }, 5000);
+      if (source === "signup") {
+        navigate("/post-signup", {
+          state: {
+            email: response.email || "",
+            // mobile_no: `+${response.mobile_no}` || "",
+            mobile_no: response.mobile_no || "",
 
+          },
+        });
+      } else if (source === "post-signup" || source === "login") {
+        navigate("/customer-dashboard");
+      } else {
+        // fallback
+        navigate("/");
+      }
+    } catch (error) {
+      setPopup({
+        isOpen: true,
+        message: "OTP verification failed.",
+        type: "error",
+      });
     } finally {
       setLoading(false);
     }
   };
+
 
   const handleResendOtp = async () => {
     setLoading(true);
     try {
       const payload = email ? { email } : { mobile_no };
       const res = await registerCustomer(payload);
-    //   alert(res.message || "OTP resent.");
-    setPopup({ isOpen: true, message: "OTP resent. " || res.message, type: "success" });
+      //   alert(res.message || "OTP resent.");
+      setPopup({ isOpen: true, message: "OTP resent. " || res.message, type: "success" });
 
       setTimer(120); // Reset timer
     } catch (error) {
-    //   alert(error?.error || "Failed to resend OTP.");
+      //   alert(error?.error || "Failed to resend OTP.");
       console.error(error);
-          setPopup({ isOpen: true, message: "Failed to resend OTP.", type: "error" });
+      setPopup({ isOpen: true, message: "Failed to resend OTP.", type: "error" });
 
     } finally {
       setLoading(false);
@@ -131,7 +141,7 @@ const VerifyOtp = () => {
         </div>
       </div>
 
-            <PopupMessage
+      <PopupMessage
         isOpen={popup.isOpen}
         message={popup.message}
         type={popup.type}

@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./PopupMessage.css";
+import { FaCheckCircle, FaTimesCircle, FaInfoCircle } from "react-icons/fa";
 
 const PopupMessage = ({ isOpen, onClose, message, type = "info", autoClose = true }) => {
   useEffect(() => {
@@ -13,11 +14,18 @@ const PopupMessage = ({ isOpen, onClose, message, type = "info", autoClose = tru
 
   if (!isOpen) return null;
 
-  const icon = {
-    success: "✔️",
-    error: "❌",
-    info: "ℹ️"
-  }[type] || "ℹ️";
+  // const icon = {
+  //   success: "✔️",
+  //   error: "❌",
+  //   info: "ℹ️"
+  // }[type] || "ℹ️";
+
+  
+const icon = {
+  success: <FaCheckCircle color="green" size={24} />,  // ✅ green tick
+  error: <FaTimesCircle color="red" size={24} />,
+  info: <FaInfoCircle color="#007bff" size={24} />
+}[type] || "ℹ️";
 
   return (
     <div className="popup-overlay" onClick={onClose}>

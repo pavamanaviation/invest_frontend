@@ -54,16 +54,16 @@
     text-align: center;
 }
 
-.plan-section p {
+.plan-text {
     margin: 5px 0 0;
     /* color: #fff; */
-    font-size: 15px;
+    font-size: 14px;
 }
 
 .label {
     font-weight: bold;
     display: block;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 button:disabled {
@@ -80,17 +80,21 @@ button:disabled {
     width: 168px;
 }
 
-.cd-image-text{
-    display: flex
-;
+.cd-image-text {
+    display: flex;
     flex-direction: column;
     margin: 30px auto;
     align-items: center;
 
-    a{
+    a {
         color: #3A3A98;
     }
 }
+
+.plan-text-small {
+    font-size: 12px;
+}
+
 @media screen and (max-width: 1024) {
     .cd-image-plans-section {
         flex-direction: column;
@@ -103,6 +107,10 @@ button:disabled {
         flex-direction: column;
     }
 
+    /* 
+.cd-image{
+    width: 100%;
+} */
 }
 
 @media (max-width: 375px) {}

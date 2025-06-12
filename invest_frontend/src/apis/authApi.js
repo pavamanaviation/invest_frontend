@@ -19,6 +19,7 @@ export const registerCustomer = async ({ token, email, mobile_no }) => {
 export const verifyCustomerOtp = async ({ otp, email, mobile_no, first_name, last_name }) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/verify-customer-otp`, {
+      customer_id : sessionStorage.getItem("customer_id") || "",
       otp,
       email,
       mobile_no,
@@ -34,7 +35,7 @@ export const verifyCustomerOtp = async ({ otp, email, mobile_no, first_name, las
 export const postSignup = async ({ customer_id, email, mobile_no, first_name, last_name }) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/customer-register-sec-phase`, {
-      customer_id : localStorage.getItem("customer_id"),
+      customer_id : sessionStorage.getItem("customer_id"),
       email,
       mobile_no,
       first_name,
@@ -43,5 +44,19 @@ export const postSignup = async ({ customer_id, email, mobile_no, first_name, la
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "Profile completion failed." };
+  }
+};
+
+
+export const loginCustomer = async ({ email, mobile_no, token }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/customer-login`, {
+      email,
+      mobile_no,
+      token,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Login failed." };
   }
 };
