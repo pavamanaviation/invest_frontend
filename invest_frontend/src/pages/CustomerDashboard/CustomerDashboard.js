@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
 import "./CustomerDashboard.css";
-
 import Tejas from "../../assets/TEJA-S-1.png";
 // import Tejasgif from "../../assets/drone-gif.gif"
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
@@ -21,34 +19,34 @@ const CustomerDashboard = () => {
 
   const customer_id = sessionStorage.getItem("customer_id");
 
-  useEffect(() => {
-    if (!customer_id) {
-      setPopup({
-        isOpen: true,
-        message: "Please log in to view this page",
-        type: "info",
-      });
-      setRedirecting(true); // Immediately hide dashboard
+//   useEffect(() => {
+//     if (!customer_id) {
+//       setPopup({
+//         isOpen: true,
+//         message: "Please log in to view this page",
+//         type: "info",
+//       });
+//       setRedirecting(true); // Immediately hide dashboard
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
-    }
-  }, [customer_id, navigate]);
+//       setTimeout(() => {
+//         navigate("/login");
+//       }, 3000);
+//     }
+//   }, [customer_id, navigate]);
 
-  // Show only popup while redirecting
-  if (redirecting) {
-    return (
-      <div className="customer-dashboard">
-        <PopupMessage
-          isOpen={popup.isOpen}
-          message={popup.message}
-          type={popup.type}
-          onClose={() => setPopup({ ...popup, isOpen: false })}
-        />
-      </div>
-    );
-  }
+//   // Show only popup while redirecting
+//   if (redirecting) {
+//     return (
+//       <div className="customer-dashboard">
+//         <PopupMessage
+//           isOpen={popup.isOpen}
+//           message={popup.message}
+//           type={popup.type}
+//           onClose={() => setPopup({ ...popup, isOpen: false })}
+//         />
+//       </div>
+//     );
+//   }
     const handleKyc = () => {
         navigate("/user-kyc")
         setKycCompleted(true);

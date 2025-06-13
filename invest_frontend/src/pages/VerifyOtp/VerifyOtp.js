@@ -49,8 +49,8 @@ const VerifyOtp = () => {
         navigate("/post-signup", {
           state: {
             email: response.email || "",
-            // mobile_no: `+${response.mobile_no}` || "",
-            mobile_no: response.mobile_no || "",
+            mobile_no: `+${response.mobile_no}` || "",
+            // mobile_no: response.mobile_no || "",
 
           },
         });
