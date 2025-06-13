@@ -1,0 +1,23 @@
+.selfie-capture-container {
+  margin-top: 20px;
+      display: flex
+;
+    flex-direction: column;
+    gap: 20px;
+
+}
+
+.selfie-video,
+.selfie-preview {
+  width: 100%;
+  max-width: 320px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+
+.selfie-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}

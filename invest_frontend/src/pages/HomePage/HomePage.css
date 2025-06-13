@@ -62,7 +62,8 @@
 }
 
 .home-metrics-section {
-    background-color: #D4D7F5;
+    /* background-color: #D4D7F5; */
+    background-color: #5a63be;
     padding: 32px 0;
 }
 
@@ -86,6 +87,7 @@
     line-height: 28px;
     font-weight: 700;
     text-align: start;
+    color: white;
 }
 
 .home-metrics-text-caption {
@@ -93,6 +95,8 @@
     line-height: 24px;
     font-weight: 400;
     text-align: start;
+    color: white;
+
 }
 
 .home-revenue-model{

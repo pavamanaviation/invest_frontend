@@ -3,6 +3,11 @@ import "./HomePage.css";
 import { FaCheckCircle } from "react-icons/fa";
 import sampleImage from "../../assets/sample-1.png";
 import revenuemodel from "../../assets/revenuemodel.jpg";
+import agritech from "../../assets/agritech.png"
+import fixedreturns from "../../assets/fixed returns.png"
+import zero from "../../assets/zero maintainence.png"
+import trust from "../../assets/trust.png"
+
 const Home = () => {
     return (
         <div className="homepage">
@@ -38,22 +43,22 @@ const Home = () => {
                 <div className="container">
                     <div className="home-metrics-container">
                         <div className="home-metrics-content">
-                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-image"> <img src={fixedreturns} /></div>
                             <div className="home-metrics-text"> Fixed Returns</div>
                             <div className="home-metrics-text-caption">No market risk</div>
                         </div>
                         <div className="home-metrics-content">
-                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-image"> <img src={zero} /></div>
                             <div className="home-metrics-text">Zero Maintenance Hassle </div>
                             <div className="home-metrics-text-caption">We take careof everything</div>
                         </div>
                         <div className="home-metrics-content">
-                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-image"> <img src={agritech} /></div>
                             <div className="home-metrics-text"> Agri Tech Investment</div>
                             <div className="home-metrics-text-caption">Promoting green innovation</div>
                         </div>
                         <div className="home-metrics-content">
-                            <div className="home-metrics-image"> <img src={sampleImage} /></div>
+                            <div className="home-metrics-image"> <img src={trust} /></div>
                             <div className="home-metrics-text">Kapil Group Product</div>
                             <div className="home-metrics-text-caption">45+ years of trust</div>
                         </div>
