@@ -15,7 +15,7 @@ const CustomerDashboard = () => {
         type: "info",
     });
 
-  const [redirecting, setRedirecting] = useState(false); // New state
+  const [redirecting, setRedirecting] = useState(false); 
 
   const customer_id = sessionStorage.getItem("customer_id");
 
@@ -47,7 +47,13 @@ const CustomerDashboard = () => {
 //       </div>
 //     );
 //   }
+
     const handleKyc = () => {
+         if (!customer_id) {
+            setPopup({ isOpen: true, message: "Please log in to proceed to KYC", type: "info", });
+            setTimeout(() => { navigate("/login"); }, 3000);
+            return;
+        }
         navigate("/user-kyc")
         setKycCompleted(true);
     };
