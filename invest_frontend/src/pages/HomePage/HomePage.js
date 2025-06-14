@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./HomePage.css";
 import { FaCheckCircle } from "react-icons/fa";
 import sampleImage from "../../assets/sample-1.png";
@@ -7,10 +7,35 @@ import agritech from "../../assets/agritech.png"
 import fixedreturns from "../../assets/fixed returns.png"
 import zero from "../../assets/zero maintainence.png"
 import trust from "../../assets/trust.png"
+import PopupMessage from "../../components/PopupMessage/PopupMessage";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Home = () => {
+    const navigate = useNavigate();
+
+    const customer_id = sessionStorage.getItem("customer_id");
+    const [popup, setPopup] = useState({
+        isOpen: false,
+        message: "",
+        type: "info",
+    });
+
+    const handleExploreBtn = () => {
+        if (!customer_id) {
+            setPopup({ isOpen: true, message: "Please log in to view this page", type: "info", });
+            setTimeout(() => { navigate("/login"); }, 3000);
+            return;
+        }
+        navigate("/customer-dashboard");
+    }
     return (
         <div className="homepage">
+            <PopupMessage
+                isOpen={popup.isOpen}
+                message={popup.message}
+                type={popup.type}
+                onClose={() => setPopup({ ...popup, isOpen: false })}
+            />
             <div className="home-hero-section  container">
                 <div className="home-hero-content">
                     <div className="home-hero-heading"><span>High Yield</span> Investment Platform</div>
@@ -19,7 +44,7 @@ const Home = () => {
                         <div><span className="home-hero-icon"><FaCheckCircle /></span><p><span className="home-hero-bold">Stability </span>of fixed-income</p></div>
                     </div>
                     <div className="home-hero-button ">
-                        <button className="primary-button">Explore Investment</button>
+                        <button className="primary-button" onClick={handleExploreBtn}>Explore Investment</button>
                     </div>
                 </div>
 
@@ -66,11 +91,11 @@ const Home = () => {
                 </div>
 
             </div>
-        <div className="home-revenue-model container">
-            <div>
-                <img src={revenuemodel} className="home-revenue-image" />
+            <div className="home-revenue-model container">
+                <div>
+                    <img src={revenuemodel} className="home-revenue-image" />
+                </div>
             </div>
-        </div>
         </div>
     );
 
