@@ -8,10 +8,12 @@ import SelfieCapture from "../../components/SelfieCapture/SelfieCapture";
 import { savePersonalDetails, verifyPan, verifyAadhar, fetchCustomerProfile, getLocationByPincode, verifyBank, uploadDocument, submitNomineeDetails } from "../../apis/kycApi";
 import axios from "axios";
 import API_BASE_URL from "../../../src/config";
+import { useNavigate } from "react-router-dom";
 
 const KYCPage = () => {
     const customer_id = sessionStorage.getItem("customer_id");
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
     const [popup, setPopup] = useState({
         isOpen: false,
         message: "",
@@ -73,10 +75,9 @@ const KYCPage = () => {
     const [addressProofFileName, setAddressProofFileName] = useState("");
     const [signFileName, setSignatureFileName] = useState("");
     const [isNomineeVerified, setIsNomineeVerified] = useState(false);
-    const [addressProofType, setaddressProofType] = useState("");
-    const [idProofType, setidProofType] = useState("");
+    const [addressProofType, setAddressProofType] = useState("");
+    const [idProofType, setIdProofType] = useState("pan");
     const [idProofFileName, setIdProofFileName] = useState("");
-
     const [kycStatus, setKycStatus] = useState({
         personal: 0,
         identity: 0,
@@ -84,42 +85,37 @@ const KYCPage = () => {
         others: 0,
     });
 
+useEffect(() => {
+  const fetchAllStatuses = async () => {
+    const customer_id = sessionStorage.getItem("customer_id");
+    if (!customer_id) return;
 
-    useEffect(() => {
-        const fetchAllStatuses = async () => {
-            const customer_id = sessionStorage.getItem("customer_id");
-            if (!customer_id) {
-                console.warn("Missing customer_id – skipping status fetch");
-                return;
-            }
+    try {
+      const personalRes = await axios.post(`${API_BASE_URL}/customer-more-details`, { customer_id }, { withCredentials: true });
+      const panRes = await axios.post(`${API_BASE_URL}/verify-pan`, { customer_id }, { withCredentials: true });
+      const aadharRes = await axios.post(`${API_BASE_URL}/verify-aadhar-lite`, { customer_id }, { withCredentials: true });
+      const bankRes = await axios.post(`${API_BASE_URL}/verify-banck-account`, { customer_id }, { withCredentials: true });
 
-            try {
-                const personalRes = await axios.post(
-                    `${API_BASE_URL}/customer-more-details`,
-                    { customer_id },
-                    { withCredentials: true }
-                );
+      const updatedStatus = {
+        personal: personalRes.data.customer_readonly_info.personal_status,
+        identity:
+          panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
+        bank: bankRes.data.bank_status === 1 ? 1 : 0,
+      };
 
-                const updatedStatus = {
-                    personal: personalRes.data.personal_status,
-                    // identity: identityRes.data.status,
-                    // bank: bankRes.data.status,
-                    // others: nomineeRes.data.status,
-                };
+      setKycStatus(updatedStatus);
 
-                setKycStatus(updatedStatus);
+      if (updatedStatus.personal !== 1) setStep("personal");
+      else if (updatedStatus.identity !== 1) setStep("identity");
+      else if (updatedStatus.bank !== 1) setStep("bank");
+      else setStep("others");
+    } catch (error) {
+      console.error("Failed to fetch KYC statuses", error);
+    }
+  };
 
-                if (updatedStatus.personal !== 1) setStep("personal");
-                else setStep("identity"); // You can later chain this based on rest
-            } catch (error) {
-                console.error("Failed to fetch KYC statuses", error);
-            }
-        };
-
-        fetchAllStatuses();
-    }, []);
-
-
+  fetchAllStatuses();
+}, []);
 
     useEffect(() => {
         if (step === "personal") {
@@ -242,6 +238,7 @@ const KYCPage = () => {
             if (response.pan_status === 1) {
                 setPopup({ isOpen: true, message: "PAN verification successful.", type: "success" });
                 setIsPanVerified(true);
+                
                 setPanNumber(""); // Clear input
             } else {
                 setPopup({ isOpen: true, message: "PAN verification failed. Please check your details.", type: "error" });
@@ -425,7 +422,7 @@ const KYCPage = () => {
         formData.append("dob", nomineeDOB);
         formData.append("address_proof", addressProofType);
         formData.append("id_proof", idProofType); // can be fixed as "pan" if you're only allowing PAN
-formData.append("address_proof", addressProofType);
+        formData.append("address_proof", addressProofType);
 
         if (addressProofFile) {
             formData.append("address_proof_file", addressProofFile);
@@ -438,12 +435,47 @@ formData.append("address_proof", addressProofType);
         try {
             const result = await submitNomineeDetails(formData);
             console.log("Nominee submitted:", result);
-            // show success toast, move to next step, etc.
+            setPopup({ isOpen: true, message: "Nominee Updtaed Succesfully", type: "success" });
             setIsNomineeVerified(true);
-        } catch (err) {
-            alert(err?.error || "Failed to submit nominee details");
+        } catch (error) {
+            if (error?.error === "Nominee details already submitted. Please proceed to next step.") {
+                setPopup({ isOpen: true, message: error.error, type: "info" });
+                setStep("others");
+            } else {
+                setPopup({ isOpen: true, message: error.message || "Nominee updation failed.", type: "error" });
+            }
+
         }
     };
+
+    const uploadSelfieToServer = async (imageDataUrl) => {
+        try {
+            const blob = await fetch(imageDataUrl).then(res => res.blob());
+            const selfieFile = new File([blob], "selfie.png", { type: "image/png" });
+
+            const formData = new FormData();
+            formData.append("customer_id", sessionStorage.getItem("customer_id"));
+            formData.append("doc_type", "selfie");
+            formData.append("kyc_file", selfieFile);
+
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+
+            if (response.data.status === "success") {
+                setPopup({ isOpen: true, message: "Selfie captured successfully.", type: "success" });
+            }
+        } catch (error) {
+            console.error("Selfie upload failed:", error);
+            setPopup({ isOpen: true, message: error || "Failed to upload ", type: "error" });
+
+        }
+    };
+
 
     const sigPadRef = useRef();
 
@@ -451,11 +483,68 @@ formData.append("address_proof", addressProofType);
         sigPadRef.current.clear();
     };
 
-    const saveSignature = () => {
+    const [signatureUploaded, setSignatureUploaded] = useState(false);
+    const saveSignature = async () => {
         const dataUrl = sigPadRef.current.toDataURL(); // base64 image
-        console.log("Signature Image:", dataUrl); // You can upload this to server
+
+        try {
+            const blob = await fetch(dataUrl).then(res => res.blob());
+            const signatureFile = new File([blob], "signature.png", { type: "image/png" });
+
+            const formData = new FormData();
+            formData.append("customer_id", sessionStorage.getItem("customer_id"));
+            formData.append("doc_type", "signature");
+            formData.append("kyc_file", signatureFile);
+
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+            if (response.data.status === "success") {
+                setSignatureUploaded(true);
+                console.log("✅ Signature uploaded:", response.data);
+                setPopup({ isOpen: true, message: "Signature uploaded successfully.", type: "success" });
+
+            }
+
+        } catch (error) {
+            console.error(" Signature upload failed:", error);
+            setPopup({ isOpen: true, message: error || "Failed to upload ", type: "error" });
+
+        }
     };
 
+    const handleSignatureFileUpload = async (file) => {
+        const formData = new FormData();
+        formData.append("customer_id", sessionStorage.getItem("customer_id"));
+        formData.append("doc_type", "signature");
+        formData.append("kyc_file", file);
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true,
+            });
+
+            if (response.data.status === "success") {
+                setPopup({ isOpen: true, message: "Signature uploaded successfully.", type: "success" });
+            }
+        } catch (error) {
+            console.error(" Signature file upload failed:", error);
+            setPopup({ isOpen: true, message: error || "Failed to upload ", type: "error" });
+
+        }
+    };
+
+
+    const handlesubmit = () => {
+        setPopup({ isOpen: true, message: "KYC Completed.", type: "success" });
+        setTimeout(() => navigate("/customer-dashboard"), 3000);
+
+    }
     return (
         <div className="kyc-container container">
             <div className="kyc-header">
@@ -484,7 +573,6 @@ formData.append("address_proof", addressProofType);
                             <div className="kyc-step-circle" />
                             <div className="kyc-step-label">
                                 {s.charAt(0).toUpperCase() + s.slice(1)}
-                                {kycStatus[s] === 1 && <span style={{ color: "green", marginLeft: 4 }}>✔</span>}
                             </div>
                         </div>
                     ))}
@@ -825,7 +913,8 @@ formData.append("address_proof", addressProofType);
                                         <select
                                             className="kyc-input"
                                             value={addressProofFile}
-                                            onChange={(e) => setAddressProof(e.target.value)}
+                                            onChange={(e) => setAddressProofType(e.target.value)}
+
                                         >
                                             <option value="">Select Address Proof</option>
                                             <option value="aadhar">Aadhar</option>
@@ -871,7 +960,7 @@ formData.append("address_proof", addressProofType);
                             </>
                         ) : (
                             <>
-                                <SelfieCapture onCapture={(imageData) => console.log("Captured Selfie:", imageData)} />
+                                <SelfieCapture onCapture={uploadSelfieToServer} />
                                 <div>
                                     <div className="kyc-row">
                                         <div className="kyc-column">
@@ -886,12 +975,14 @@ formData.append("address_proof", addressProofType);
                                                     const file = e.target.files[0];
                                                     if (file) {
                                                         setSignatureFileName(file.name);
+                                                        handleSignatureFileUpload(file); // <-- upload here
                                                     }
                                                 }}
+
                                             />
                                             <div className="kyc-input address-input">
 
-                                                <label htmlFor="addressProof" className="custom-file-button ">
+                                                <label htmlFor="selfie" className="custom-file-button ">
                                                     Choose File
                                                 </label>
 
@@ -900,6 +991,7 @@ formData.append("address_proof", addressProofType);
                                                 )}
                                             </div>
                                         </div>
+
                                     </div>
                                     <p>OR</p>
                                     <label className="kyc-label">Sign Here</label>
@@ -917,8 +1009,8 @@ formData.append("address_proof", addressProofType);
                                         </div>
                                     </div>
                                 </div>
-
-                                <button className="primary-button kyc-submit-btn">
+                                {/* {signatureUploaded && <p className="success-message">Signature uploaded successfully ✅</p>} */}
+                                <button className="primary-button kyc-submit-btn" onClick={handlesubmit}>
                                     Submit
                                 </button>
                             </>
