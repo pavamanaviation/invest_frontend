@@ -4,6 +4,8 @@ import "./CustomerDashboard.css";
 import Tejas from "../../assets/TEJA-S-1.png";
 // import Tejasgif from "../../assets/drone-gif.gif"
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
+import axios from "axios";
+import API_BASE_URL from "../../../src/config";
 
 const CustomerDashboard = () => {
     const location = useLocation();
@@ -15,52 +17,71 @@ const CustomerDashboard = () => {
         type: "info",
     });
 
-  const [redirecting, setRedirecting] = useState(false); 
 
-  const customer_id = sessionStorage.getItem("customer_id");
+    const customer_id = sessionStorage.getItem("customer_id");
+    const [showTermsPopup, setShowTermsPopup] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
-//   useEffect(() => {
-//     if (!customer_id) {
-//       setPopup({
-//         isOpen: true,
-//         message: "Please log in to view this page",
-//         type: "info",
-//       });
-//       setRedirecting(true); // Immediately hide dashboard
 
-//       setTimeout(() => {
-//         navigate("/login");
-//       }, 3000);
-//     }
-//   }, [customer_id, navigate]);
+    useEffect(() => {
+  const fetchKYCStatus = async () => {
+    try {
+      const res = await axios.post(`${API_BASE_URL}/customer-profile`, {
+        customer_id: sessionStorage.getItem("customer_id"),
+        action: "view"
+      }, {
+        withCredentials: true,
+      });
 
-//   // Show only popup while redirecting
-//   if (redirecting) {
-//     return (
-//       <div className="customer-dashboard">
-//         <PopupMessage
-//           isOpen={popup.isOpen}
-//           message={popup.message}
-//           type={popup.type}
-//           onClose={() => setPopup({ ...popup, isOpen: false })}
-//         />
-//       </div>
-//     );
-//   }
+      if (res.data.kyc_accept_status === 1) {
+        setAgreedToTerms(true);
+        // setKycCompleted(true); // or directly navigate to next step
+        // navigate("/user-kyc");
+      }
+    } catch (err) {
+      console.error("Error fetching profile", err);
+    }
+  };
+
+  fetchKYCStatus();
+}, []);
+
 
     const handleKyc = () => {
-         if (!customer_id) {
-            setPopup({ isOpen: true, message: "Please log in to proceed to KYC", type: "info", });
+        if (!customer_id) {
+            setPopup({ isOpen: true, message: "Please log in to proceed to KYC", type: "info" });
             setTimeout(() => { navigate("/login"); }, 3000);
             return;
         }
-        navigate("/user-kyc")
-        setKycCompleted(true);
+
+        setShowTermsPopup(true); // show T&C popup
     };
+
+
+    const handleAcceptAndProceed = async () => {
+  try {
+    const res = await axios.post(`${API_BASE_URL}/customer-profile`, {
+      customer_id: sessionStorage.getItem("customer_id"),
+      action: "save_kyc_accept_status",
+      kyc_accept_status: 1,
+    }, {
+      withCredentials: true,
+    });
+
+    if (res.status === 200) {
+      setShowTermsPopup(false);
+      setKycCompleted(true);
+      navigate("/user-kyc");
+    }
+  } catch (error) {
+    console.error("Failed to save KYC accept status", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
 
     return (
         <div className="customer-dashboard">
-            
+
             <PopupMessage
                 isOpen={popup.isOpen}
                 message={popup.message}
@@ -128,6 +149,47 @@ const CustomerDashboard = () => {
                 </div>
 
             </div>
+            {showTermsPopup && (
+                <div className="terms-popup-overlay">
+                    <div className="terms-popup">
+                        <h2 className="cd-heading">Terms & Conditions</h2>
+                        <div className="terms-content">
+                            <p>
+                                Please read and accept our terms and conditions before proceeding with KYC.
+                                <br /><br />
+                                1. You agree to provide accurate and complete personal information.<br />
+                                2. Your data will be used for verification and onboarding purposes.<br />
+                                3. Investment returns are subject to terms outlined in the official plan document.<br />
+                                4. Once KYC is completed, you are eligible for investment and plan selection.<br />
+                                {/* You can expand this with real content as needed */}
+                            </p>
+                            <label className="terms-checkbox">
+                                <input
+                                    type="checkbox"
+                                    checked={agreedToTerms}
+                                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                />{" "}
+                                I agree to the terms and conditions.
+                            </label>
+                        </div>
+
+                        <div className="terms-buttons">
+                            <button className="secondary-button" onClick={() => setShowTermsPopup(false)}>
+                                Cancel
+                            </button>
+                            
+                            <button
+  className="primary-button"
+  disabled={!agreedToTerms}
+  onClick={handleAcceptAndProceed}
+>
+  Proceed
+</button>
+
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

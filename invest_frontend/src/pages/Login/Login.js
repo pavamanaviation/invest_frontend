@@ -21,22 +21,22 @@ const LoginPage = () => {
   });
 
 
-    const handleInputChange = (value) => {
-        if (!value) {
-            setIsEmail(null);
-            setEmailOrMobile("");
-            return;
-        }
-        const firstChar = value[0];
-        if (/^[a-zA-Z]$/.test(firstChar)) {
-            setIsEmail(true);
-        } else if (/^\d$/.test(firstChar)) {
-            setIsEmail(false);
-        } else {
-            setIsEmail(true);
-        }
-        setEmailOrMobile(value);
-    };
+  const handleInputChange = (value) => {
+    if (!value) {
+      setIsEmail(null);
+      setEmailOrMobile("");
+      return;
+    }
+    const firstChar = value[0];
+    if (/^[a-zA-Z]$/.test(firstChar)) {
+      setIsEmail(true);
+    } else if (/^\d$/.test(firstChar)) {
+      setIsEmail(false);
+    } else {
+      setIsEmail(true);
+    }
+    setEmailOrMobile(value);
+  };
 
 
   const handleContinue = async () => {
@@ -58,18 +58,14 @@ const LoginPage = () => {
           },
         });
       } else {
-        // alert("Login Successful!");
         setPopup({ isOpen: true, message: "Login Successful!", type: "success" });
-        sessionStorage.setItem("customer_id",response.customer_id);
-        sessionStorage.setItem("session_id",response.session_id);
+        sessionStorage.setItem("customer_id", response.customer_id);
+        sessionStorage.setItem("session_id", response.session_id);
         setTimeout(() => {
           navigate("/customer-dashboard");
-
-
         }, 5000);
       }
     } catch (error) {
-      // alert(error?.error || error.message || "Login failed. Try again.");
       setPopup({ isOpen: true, message: error?.error || error.message || "Login failed. Try again.", type: "error" });
 
     } finally {
@@ -83,16 +79,14 @@ const LoginPage = () => {
       const response = await loginCustomer({ token: credentialResponse.credential });
 
       if (response.message.includes("Login successful via Google")) {
-        // alert("Google Login Successful");
         setPopup({ isOpen: true, message: "Login Successful!", type: "success" });
-        sessionStorage.setItem("customer_id",response.customer_id);
-         sessionStorage.setItem("session_id",response.session_id);
+        sessionStorage.setItem("customer_id", response.customer_id);
+        sessionStorage.setItem("session_id", response.session_id);
         setTimeout(() => {
           navigate("/customer-dashboard");
         }, 5000);
       }
     } catch (error) {
-      // alert(error?.error || error.message || "Google Login failed");
       setPopup({ isOpen: true, message: error?.error || error.message || "Google Login failed", type: "error" });
 
     } finally {
@@ -158,12 +152,12 @@ const LoginPage = () => {
         </div>
       </div>
 
-                  <PopupMessage
-                isOpen={popup.isOpen}
-                message={popup.message}
-                type={popup.type}
-                onClose={() => setPopup({ ...popup, isOpen: false })}
-            />
+      <PopupMessage
+        isOpen={popup.isOpen}
+        message={popup.message}
+        type={popup.type}
+        onClose={() => setPopup({ ...popup, isOpen: false })}
+      />
     </div>
   );
 };
