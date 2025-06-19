@@ -39,30 +39,25 @@ export const verifyAadhar = async ({ aadhar_number, customer_id }) => {
   }
 };
 
-export const savePersonalDetails = async (data) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/customer-more-details`, data);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || { message: "Failed to save personal details." };
-  }
-};
+
+
 
 export const fetchCustomerProfile = async () => {
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/customer-profile`,
-      {}, // ✅ Don't send customer_id
-      {
-        withCredentials: true, // ✅ Required for session cookie
-        headers: {
-          "Content-Type": "application/json",
-        },
+    const response = await axios.post(`${API_BASE_URL}/customer-profile`, {
+      customer_id: sessionStorage.getItem("customer_id"), 
+       action: "view"
+    }, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json"
       }
-    );
-    return response.data;
+    });
+
+    return response.data; // return the data for the caller to use
   } catch (error) {
-    throw error.response?.data || { message: "Failed to fetch customer profile" };
+    console.error("Error fetching customer profile:", error);
+    throw error; // optionally re-throw so caller can handle it
   }
 };
 
@@ -90,5 +85,72 @@ export const getLocationByPincode = async (pincode) => {
   } catch (error) {
     console.error("Failed to fetch location:", error);
     throw error;
+  }
+};
+
+export const savePersonalDetails = async (data) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/customer-more-details`,
+      data,
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to save personal details." };
+  }
+};
+
+
+export const verifyBank = async ({ account_number, ifsc, customer_id }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/verify-banck-account`, {
+      account_number,
+      ifsc,
+      customer_id,
+    }, {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Bank verification failed." };
+  }
+};
+
+export const  uploadDocument = async (formData) => {
+    const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+        headers: {
+            "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+    });
+    return response.data;
+};
+
+
+export const submitNomineeDetails = async (formData) => {
+  try {
+    const customer_id = sessionStorage.getItem("customer_id");
+    if (!customer_id) throw { error: "Customer ID missing" };
+
+    formData.append("customer_id", customer_id); // ✅ append to formData
+
+    const response = await axios.post(`${API_BASE_URL}/nominee-details`, formData, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Nominee submission error:", error);
+    throw error?.response?.data || { error: "Something went wrong" };
   }
 };

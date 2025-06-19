@@ -95,6 +95,79 @@ button:disabled {
     font-size: 12px;
 }
 
+
+.terms-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.terms-popup {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.terms-content {
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.terms-checkbox {
+    display: block;
+    margin-top: 15px;
+    font-weight: 500;
+    color: #3A3A98;
+    font-size: 18px;
+}
+
+.terms-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.secondary-button {
+    background: #ccc;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+        height: 48px;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 24px;
+    font-family: Inter, sans-serif !important;
+}
+
+.primary-button:disabled {
+    background: #999;
+    cursor: not-allowed;
+}
+
+
+.terms-checkbox input[type="checkbox"] {
+    accent-color: #3A3A98;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+
 @media screen and (max-width: 1024) {
     .cd-image-plans-section {
         flex-direction: column;

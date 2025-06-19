@@ -65,6 +65,47 @@
   display: none;
   cursor: pointer;
 }
+.user-menu {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.user-icon {
+    color: #3a3a98;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 36px;
+    right: 0;
+    background: white;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    min-width: 150px;
+    border-radius: 4px;
+    padding: 10px 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.dropdown-menu a{
+    padding: 8px 16px;
+    text-align: left;
+    text-decoration: none;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+}
+
+.dropdown-menu a:hover,
+.dropdown-menu button:hover {
+    background-color: #f0f0f0;
+}
+
 
 /* Responsive */
 @media (max-width: 768px) {

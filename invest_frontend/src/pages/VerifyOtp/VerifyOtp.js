@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { verifyCustomerOtp, registerCustomer } from "../../apis/authApi"; // Resend calls same register API
 import "./VerifyOtp.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-
+import axios from "axios";
 const VerifyOtp = () => {
   const [loading, setLoading] = useState(false);
   const [otp, setOtp] = useState("");
@@ -33,43 +33,56 @@ const VerifyOtp = () => {
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
+const handleOtpVerification = async () => {
+  setLoading(true);
+  try {
+    const response = await verifyCustomerOtp({ otp, email, mobile_no , customer_id });
 
-  const handleOtpVerification = async () => {
-    setLoading(true);
-    try {
-      const response = await verifyCustomerOtp({ otp, email, mobile_no , customer_id});
-      setTimeout(() => {
-        setPopup({
-          isOpen: true,
-          message: "OTP verified successfully.",
-          type: "success",
+    // 🔍 Add this test here
+    const testSession = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/test-session/", {
+          withCredentials: true,
         });
-      }, 5000);
-      if (source === "signup") {
-        navigate("/post-signup", {
-          state: {
-            email: response.email || "",
-            mobile_no: `+${response.mobile_no}` || "",
-            // mobile_no: response.mobile_no || "",
-
-          },
-        });
-      } else if (source === "post-signup" || source === "login") {
-        navigate("/customer-dashboard");
-      } else {
-        // fallback
-        navigate("/");
+        console.log("Session Check:", res.data);
+      } catch (err) {
+        console.error("Session test failed:", err);
       }
-    } catch (error) {
+    };
+    await testSession();
+
+    setTimeout(() => {
       setPopup({
         isOpen: true,
-        message: "OTP verification failed.",
-        type: "error",
+        message: "OTP verified successfully.",
+        type: "success",
       });
-    } finally {
-      setLoading(false);
+    }, 5000);
+
+    if (source === "signup") {
+      navigate("/post-signup", {
+        state: {
+          email: response.email || "",
+          mobile_no: `+${response.mobile_no}` || "",
+        },
+      });
+    } else if (source === "post-signup" || source === "login") {
+      sessionStorage.setItem("customer_id", response.customer_id);
+      sessionStorage.setItem("session_id", response.session_id);
+      navigate("/customer-dashboard");
+    } else {
+      navigate("/");
     }
-  };
+  } catch (error) {
+    setPopup({
+      isOpen: true,
+      message: "OTP verification failed.",
+      type: "error",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   const handleResendOtp = async () => {
