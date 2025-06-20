@@ -8,6 +8,7 @@ import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import PostSignupPage from "./pages/PostSignupDetails/PostSignupDetails";
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
 import Kyc from "./pages/KYC/KYC";
+import DronePayment from "./pages/Payment/Payment";
 
 
 function App() {
@@ -24,7 +25,7 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/customer-dashboard" element={<CustomerDashboard />} />
         <Route path="/user-kyc" element={<Kyc />} />
-
+        <Route path="/payment" element={<DronePayment/>}/>
       </Routes>
 
     </Router>
