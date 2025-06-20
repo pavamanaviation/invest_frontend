@@ -111,21 +111,32 @@ button:disabled {
 
 .terms-popup {
     background: white;
-    padding: 30px;
-    border-radius: 12px;
-    width: 500px;
-    max-width: 90%;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    padding: 40px;
+    border-radius: 16px;
+    width: 800px; /* increased width */
+    max-width: 95%;
+    max-height: 90vh; /* limit height to avoid overflow */
+    overflow: hidden;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
 }
 
 .terms-content {
-    margin-top: 20px;
-    max-height: 300px;
+    margin-top: 25px;
+    max-height: 50vh; /* allow for scrolling long content */
     overflow-y: auto;
-    font-size: 14px;
-    line-height: 1.6;
+    font-size: 16px; /* larger font size */
+    line-height: 1.8; /* more spacing between lines */
+    color: #333;
+    padding-right: 10px;
 }
 
+.terms-content span{
+    padding-left: 20px;
+}
+
+.extra-span{
+    padding-left: 80px !important;
+}
 .terms-checkbox {
     display: block;
     margin-top: 15px;

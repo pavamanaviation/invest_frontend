@@ -248,47 +248,60 @@ const CustomerDashboard = () => {
                         <h2 className="cd-heading">Terms & Conditions</h2>
                         <div className="terms-content">
                             <p>
-                                Please read and accept our terms and conditions before proceeding with payment.
-                                <br /><br />
+                                Please read and accept our terms and conditions before proceeding with payment.</p>
+                            
 
-                                1. All applicants are requested to make payments directly in the company's name, Le, PAVAMAA AVIATION PRIVATE LIMITED. The bank details are given below<br />
+                               <p> 1. All applicants are requested to make payments directly in the company's name, Le, PAVAMAN AVIATION PRIVATE LIMITED. The bank details are given below<br />
+                                    <span>a) HDFC BANK<br /></span>
 
-                                    a) HDFC BANK<br />
+                                    <span>A/c No: 50200089044235</span><br />
 
-                                A/c No: 50200089044235<br />
+                                    <span>IFSC Code: HDFC0003788</span><br />
 
-                                IFSC Code: HDFC0003788<br />
+                                        <span className="extra-span">(OR)</span><br />
 
-                                (OR)<br />
+                                    <span>b) UNION BANK OF INDIA</span><br />
 
-                                b) UNION BANK OF INDIA<br />
+                                    <span>A/c No: 183911010000040</span><br />
 
-                                A/c No: 183911010000040<br />
-
-                                IFSC Code: UBIN0818399<br />
+                                    <span>IFSC Code: UBIN0818399</span><br />
+                                    
 
                                 The company cannot take responsibility for or be liable for payments made to any Individual, whether an employee or not.<br />
-
+</p>
+                                <p>
+                                
                                 2. The applicant must submit copies of Aadhar Copy (optional), self-attested proof of address, self-at-tested proof of ID and PAN Card. If the application is in joint names, all applicants must sign the application form and submit these documents.<br />
+                                </p>
+<p>
 
                                 3. A booking advance of Rs 1,00,000/-is to be paid at the time of booking for the purchase of a Drone. The balance of the sale consideration shall be paid by the Purchaser within 90 days thereafter. In case the balance is not paid within 90 days, the company will deduct Rs 10,000/-towards its opera tional expenses and refund the balance within 45 days.<br />
+</p>
+<p>
 
                                 4. In case of cancellation of booking, the company will deduct Rs 10,000/-towards its operational expenses and refund the balance within 45 days after receiving a written request to cancel the application to purchase a TEJAS drone.<br />
+</p>
+<p>
 
                                 5. Each system will consist of,<br />
 
-                                    i) DGCA Approved TEJAS -1No<br />
+                                    <span>i) DGCA Approved TEJAS -1No</span><br />
 
-                                    ii) Battery Sets - 4 Nos<br />
+                                    <span>ii) Battery Sets - 4 Nos</span><br />
 
-                                    iii) Diesel Generator 3KVA - 1No<br />
+                                    <span>iii) Diesel Generator 3KVA - 1No</span><br />
 
-                                    iv) Water Tank - 1No<br />
+                                    <span>iv) Water Tank - 1No</span><br />
+</p>
+<p>
 
                                 6. The company will deliver the drone system in within 15 days from receipt of 100% of the amount<br />
+</p>
+<p>
 
                                 7. The drone will have 66 months of AMC, during which the company will supply spares free of cost<br />
-                            </p>
+</p>
+                           
                             <label className="terms-checkbox">
                                 <input
                                     type="checkbox"
