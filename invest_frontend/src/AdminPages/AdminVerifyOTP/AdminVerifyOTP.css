@@ -1,0 +1,31 @@
+.admin-otp-text {
+  font-size: 14px;
+  color: grey;
+}
+
+.admin-otp-text-btn {
+  color: #003366;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.admin-resend-otp-section {
+  margin: 30px auto;
+}
+
+.admin-resend-timer {
+  color: #888;
+}
+
+.admin-resend-btn {
+  background-color: transparent;
+  color: #003366;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.admin-resend-btn:hover {
+  text-decoration: underline;
+}
