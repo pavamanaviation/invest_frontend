@@ -177,7 +177,12 @@ button:disabled {
     height: 16px;
     cursor: pointer;
 }
-
+.cd-loading {
+    padding: 1rem;
+    font-size: 16px;
+    color: #555;
+    text-align: center;
+}
 
 @media screen and (max-width: 1024) {
     .cd-image-plans-section {
@@ -197,4 +202,8 @@ button:disabled {
 } */
 }
 
-@media (max-width: 375px) {}
+@media (max-width: 425px) {
+    .cd-plans-section{
+        margin-top: 30px;
+    }
+}

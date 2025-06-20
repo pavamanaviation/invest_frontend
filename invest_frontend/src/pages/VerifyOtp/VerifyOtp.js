@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verifyCustomerOtp, registerCustomer } from "../../apis/authApi"; // Resend calls same register API
+import { verifyCustomerOtp, registerCustomer ,verifyLoginOtp} from "../../apis/authApi"; // Resend calls same register API
 import "./VerifyOtp.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import axios from "axios";
@@ -33,56 +33,73 @@ const VerifyOtp = () => {
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
+
 const handleOtpVerification = async () => {
   setLoading(true);
   try {
-    const response = await verifyCustomerOtp({ otp, email, mobile_no , customer_id });
+    let response;
 
-    // 🔍 Add this test here
-    const testSession = async () => {
-      try {
-        const res = await axios.get("http://localhost:8000/test-session/", {
-          withCredentials: true,
-        });
-        console.log("Session Check:", res.data);
-      } catch (err) {
-        console.error("Session test failed:", err);
-      }
-    };
-    await testSession();
-
-    setTimeout(() => {
-      setPopup({
-        isOpen: true,
-        message: "OTP verified successfully.",
-        type: "success",
+    if (source === "signup" || source === "post-signup") {
+      response = await verifyCustomerOtp({
+        otp,
+        email,
+        mobile_no,
+        customer_id,
       });
-    }, 5000);
+    } else if (source === "login") {
+      response = await verifyLoginOtp({ otp, email, mobile_no });
+    }
 
-    if (source === "signup") {
-      navigate("/post-signup", {
-        state: {
-          email: response.email || "",
-          mobile_no: `+${response.mobile_no}` || "",
-        },
-      });
-    } else if (source === "post-signup" || source === "login") {
+    setPopup({
+      isOpen: true,
+      message: "OTP verified successfully.",
+      type: "success",
+    });
+
+    // 🔁 Role-based redirection using ID fields
+    if (response.admin_id) {
+      sessionStorage.setItem("admin_id", response.admin_id);
+      sessionStorage.setItem("session_id", response.session_id);
+      navigate("/admin-dashboard");
+    } else if (response.role_id) {
+      sessionStorage.setItem("role_id", response.role_id);
+      sessionStorage.setItem("session_id", response.session_id);
+      navigate("/admin-dashboard");
+    } else if (response.customer_id) {
       sessionStorage.setItem("customer_id", response.customer_id);
       sessionStorage.setItem("session_id", response.session_id);
-      navigate("/customer-dashboard");
+sessionStorage.setItem("customer_email", response.email);
+      if (source === "signup") {
+        navigate("/post-signup", {
+          state: {
+            email: response.email || "",
+            mobile_no: response.mobile_no?.startsWith("+")
+              ? response.mobile_no
+              : `+${response.mobile_no}`,
+          },
+        });
+      } else {
+        navigate("/customer-dashboard");
+      }
     } else {
-      navigate("/");
+      setPopup({
+        isOpen: true,
+        message: "Unable to determine login role.",
+        type: "error",
+      });
     }
   } catch (error) {
     setPopup({
       isOpen: true,
-      message: "OTP verification failed.",
+      message: error?.error || "OTP verification failed.",
       type: "error",
     });
   } finally {
     setLoading(false);
   }
 };
+
+
 
 
   const handleResendOtp = async () => {

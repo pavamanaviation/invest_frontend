@@ -45,11 +45,13 @@ const PostSignupPage = () => {
 
     const handleContinue = async () => {
         setLoading(true);
+        
         try {
+            const formattedMobile = mobile.startsWith("+") ? mobile : `+${mobile}`;
             const res = await postSignup({
                 token,
                 email: email || "",
-                mobile_no: mobile.startsWith("+") ? mobile : `+${mobile}` || "",
+                mobile_no: formattedMobile,
                 first_name: firstName,
                 last_name: lastName,
             });

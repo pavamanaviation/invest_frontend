@@ -1,0 +1,32 @@
+import axios from "axios";
+import API_BASE_URL from "../config";
+
+export const createFullPaymentOrder = async ({ customer_id, email, price }) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/create-drone-order`,
+      { customer_id, email, price },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Order creation failed." };
+  }
+};
+
+export const getPaymentStatus = async (customer_id) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/payment-status-check`, {
+      params: { customer_id },
+      withCredentials: true,
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to check payment status." };
+  }
+};

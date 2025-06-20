@@ -9,6 +9,7 @@ import API_BASE_URL from "../../../src/config";
 const CustomerDashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
+const [loading, setLoading] = useState(true);
 
     const customer_id = sessionStorage.getItem("customer_id");
 
@@ -21,6 +22,13 @@ const CustomerDashboard = () => {
         isOpen: false,
         message: "",
         type: "info",
+    });
+
+    const [kycStatus, setKycStatus] = useState({
+        personal: 0,
+        identity: 0,
+        bank: 0,
+        others: 0,
     });
 
     useEffect(() => {
@@ -49,6 +57,44 @@ const CustomerDashboard = () => {
 
         fetchKYCStatus();
     }, [customer_id]);
+
+    useEffect(() => {
+        const fetchAllStatuses = async () => {
+            const customer_id = sessionStorage.getItem("customer_id");
+            if (!customer_id) return;
+    setLoading(true);
+            try {
+                const personalRes = await axios.post(`${API_BASE_URL}/customer-more-details`, { customer_id }, { withCredentials: true });
+                const panRes = await axios.post(`${API_BASE_URL}/verify-pan`, { customer_id }, { withCredentials: true });
+                const aadharRes = await axios.post(`${API_BASE_URL}/verify-aadhar-lite`, { customer_id }, { withCredentials: true });
+                const bankRes = await axios.post(`${API_BASE_URL}/verify-banck-account`, { customer_id }, { withCredentials: true });
+                const nomineeRes = await axios.post(`${API_BASE_URL}/nominee-details`, { customer_id }, { withCredentials: true });
+                const selfieRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "selfie" }, { withCredentials: true });
+                const signatureRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "signature" }, { withCredentials: true });
+
+                const updatedStatus = {
+                    personal: personalRes.data.customer_readonly_info.personal_status,
+                    identity: panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
+                    bank: bankRes.data.bank_status === 1 ? 1 : 0,
+                    others: nomineeRes.data.nominee_status === 1 &&
+                            selfieRes.data.selfie_status === 1 &&
+                            signatureRes.data.signature_status === 1 ? 1 : 0,
+                };
+
+                setKycStatus(updatedStatus);
+
+                const isKycComplete = Object.values(updatedStatus).every(status => status === 1);
+                setKycCompleted(isKycComplete);
+            } catch (error) {
+                console.error("Failed to fetch KYC statuses", error);
+            }
+            finally {
+            setLoading(false); // Hide loader
+        }
+        };
+
+        fetchAllStatuses();
+    }, []);
 
     const handleKyc = () => {
         if (!customer_id) {
@@ -147,15 +193,34 @@ const CustomerDashboard = () => {
                         <img src={Tejas} className="cd-image" alt="Teja Drone" />
                         <a href="#">Know More Details...</a>
                     </div>
+               
                     <div className="cd-buttons">
-                        <button className="primary-button cd-button" onClick={handleKyc}>
-                            {kycCompleted ? "KYC Completed" : "Complete KYC"}
-                        </button>
-                        <button className="primary-button cd-button" onClick={handlePayment}>
-                            Proceed to Payment
-                        </button>
-                    </div>
+    {loading ? (
+        <div className="cd-loading">Loading KYC status...</div>
+    ) : (
+        <>
+            <button
+                className="primary-button cd-button"
+                onClick={handleKyc}
+                disabled={kycCompleted}
+            >
+                {kycCompleted ? "KYC Completed" : "Complete KYC"}
+            </button>
+            <button
+                className="primary-button cd-button"
+                onClick={handlePayment}
+                disabled={!kycCompleted}
+            >
+                Proceed to Payment
+            </button>
+        </>
+    )}
+</div>
+
                 </div>
+
+ 
+
 
                 <div className="cd-plans-section">
                     <div className="cd-heading">Investment Plans</div>
@@ -249,59 +314,59 @@ const CustomerDashboard = () => {
                         <div className="terms-content">
                             <p>
                                 Please read and accept our terms and conditions before proceeding with payment.</p>
-                            
 
-                               <p> 1. All applicants are requested to make payments directly in the company's name, Le, PAVAMAN AVIATION PRIVATE LIMITED. The bank details are given below<br />
-                                    <span>a) HDFC BANK<br /></span>
 
-                                    <span>A/c No: 50200089044235</span><br />
+                            <p> 1. All applicants are requested to make payments directly in the company's name, Le, PAVAMAN AVIATION PRIVATE LIMITED. The bank details are given below<br />
+                                <span>a) HDFC BANK<br /></span>
 
-                                    <span>IFSC Code: HDFC0003788</span><br />
+                                <span>A/c No: 50200089044235</span><br />
 
-                                        <span className="extra-span">(OR)</span><br />
+                                <span>IFSC Code: HDFC0003788</span><br />
 
-                                    <span>b) UNION BANK OF INDIA</span><br />
+                                <span className="extra-span">(OR)</span><br />
 
-                                    <span>A/c No: 183911010000040</span><br />
+                                <span>b) UNION BANK OF INDIA</span><br />
 
-                                    <span>IFSC Code: UBIN0818399</span><br />
-                                    
+                                <span>A/c No: 183911010000040</span><br />
+
+                                <span>IFSC Code: UBIN0818399</span><br />
+
 
                                 The company cannot take responsibility for or be liable for payments made to any Individual, whether an employee or not.<br />
-</p>
-                                <p>
-                                
+                            </p>
+                            <p>
+
                                 2. The applicant must submit copies of Aadhar Copy (optional), self-attested proof of address, self-at-tested proof of ID and PAN Card. If the application is in joint names, all applicants must sign the application form and submit these documents.<br />
-                                </p>
-<p>
+                            </p>
+                            <p>
 
                                 3. A booking advance of Rs 1,00,000/-is to be paid at the time of booking for the purchase of a Drone. The balance of the sale consideration shall be paid by the Purchaser within 90 days thereafter. In case the balance is not paid within 90 days, the company will deduct Rs 10,000/-towards its opera tional expenses and refund the balance within 45 days.<br />
-</p>
-<p>
+                            </p>
+                            <p>
 
                                 4. In case of cancellation of booking, the company will deduct Rs 10,000/-towards its operational expenses and refund the balance within 45 days after receiving a written request to cancel the application to purchase a TEJAS drone.<br />
-</p>
-<p>
+                            </p>
+                            <p>
 
                                 5. Each system will consist of,<br />
 
-                                    <span>i) DGCA Approved TEJAS -1No</span><br />
+                                <span>i) DGCA Approved TEJAS -1No</span><br />
 
-                                    <span>ii) Battery Sets - 4 Nos</span><br />
+                                <span>ii) Battery Sets - 4 Nos</span><br />
 
-                                    <span>iii) Diesel Generator 3KVA - 1No</span><br />
+                                <span>iii) Diesel Generator 3KVA - 1No</span><br />
 
-                                    <span>iv) Water Tank - 1No</span><br />
-</p>
-<p>
+                                <span>iv) Water Tank - 1No</span><br />
+                            </p>
+                            <p>
 
                                 6. The company will deliver the drone system in within 15 days from receipt of 100% of the amount<br />
-</p>
-<p>
+                            </p>
+                            <p>
 
                                 7. The drone will have 66 months of AMC, during which the company will supply spares free of cost<br />
-</p>
-                           
+                            </p>
+
                             <label className="terms-checkbox">
                                 <input
                                     type="checkbox"

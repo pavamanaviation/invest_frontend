@@ -24,6 +24,7 @@ export const registerCustomer = async ({ token, email, mobile_no }) => {
 // Verify OTP
 export const verifyCustomerOtp = async ({ otp, email, mobile_no, first_name, last_name }) => {
   try {
+    
     const response = await axios.post(`${API_BASE_URL}/verify-customer-otp`, {
       customer_id : sessionStorage.getItem("customer_id") || "",
       otp,
@@ -84,5 +85,24 @@ export const loginCustomer = async ({ email, mobile_no, token }) => {
     return response.data;
   } catch (error) {
     throw error.response?.data || { message: "Login failed." };
+  }
+};
+
+
+export const verifyLoginOtp = async ({ otp, email, mobile_no }) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/verify-otp`, {
+      otp,
+      email,
+      mobile_no,
+    }, {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Login OTP verification failed." };
   }
 };

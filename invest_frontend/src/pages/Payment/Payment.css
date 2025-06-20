@@ -1,0 +1,141 @@
+.payment-section {
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.payment-header {
+    font-size: 28px;
+    font-weight: 600;
+    color: #3A3A98;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.payment-table {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-collapse: collapse;
+    font-size: 16px;
+}
+
+.payment-table th,
+.payment-table td {
+    border: 1px solid #ccc;
+    padding: 16px;
+    text-align: left;
+}
+
+.payment-table th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    color: #3A3A98;
+}
+
+/* .payment-table td {
+  color: #555;
+} */
+
+
+.payment-note {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #444;
+    background-color: #f9f9f9;
+    border-left: 4px solid #3A3A98;
+    padding: 10px 16px;
+    line-height: 1.6;
+}
+
+.payment-btns {
+    margin: 30px auto;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+}
+
+.full-payment-btn,
+.inst-payment-btn {
+    width: 180px;
+}
+
+
+.pay-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.pay-popup-box {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 500px;
+    max-width: 90%;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.pay-popup-header {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #3A3A98;
+}
+
+.pay-popup-buttons {
+    margin-top: 20px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+}
+
+.pay-popup-buttons button {
+    padding: 10px 20px;
+    font-weight: 500;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 150px;
+}
+
+
+.pay-popup-input {
+    /* width: 100%; */
+    padding: 8px;
+    margin-top: 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.pay-popup-error {
+    color: red;
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+
+@media (max-width: 375px) {
+    .payment-header {
+        font-size: 24px;
+    }
+
+    .payment-table,
+    .payment-note {
+        font-size: 12px;
+    }
+
+    .full-payment-btn,
+    .inst-payment-btn {
+        width: 150px;
+        font-size: 13px;
+        height: 57px;
+    }
+
+}
