@@ -1,0 +1,104 @@
+.admin-login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  
+
+}
+
+.admin-login-box {
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  padding: 40px 20px;
+  position: relative;
+  margin-bottom: 95px;
+}
+
+.admin-login-heading {
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 40px;
+  text-align: center;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #3A3A98;
+}
+
+.admin-login-input {
+   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background-color: white;
+  font-weight: 500;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  height: 48px;
+  font-size: 16px;
+  font-family: inherit;
+}
+
+.admin-continue-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #dfe6ee;
+  color: #999;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: not-allowed;
+  height: 48px;
+  font-size: 14px;
+}
+
+.admin-continue-btn:enabled {
+  background-color: #3A3A98;
+  color: white;
+  cursor: pointer;
+}
+
+.admin-separator {
+  height: 1px;
+  background: #ddd;
+  margin: 20px 0;
+}
+
+
+.admin-password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.admin-password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  top: 55%;
+  right: 10px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+  font-size: 25px;
+  z-index: 2;
+}
+.admin-password-input {
+  padding-right: 40px; 
+}
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  display: none;
+}
+
+
+

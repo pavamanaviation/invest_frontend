@@ -1,0 +1,24 @@
+/* Make parent a flex container */
+.admin-dashboard-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar styling */
+.admin-side-menu {
+  width: 220px;
+  background-color: white;
+  color: white;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Content area next to sidebar */
+.admin-content {
+  flex: 1;
+  padding: 40px;
+  background-color: #1db7b7  ;
+}

@@ -1,0 +1,65 @@
+.admin-side-menu {
+  width: 250px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 20px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-menu-section {
+  margin-bottom: 20px;
+}
+
+.admin-menu-item {
+ 
+  color: #444;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 12px 20px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.admin-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.admin-submenu {
+  background-color: #f9f9f9;
+  padding-left: 40px;
+}
+
+.admin-submenu-item,.admin-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #444;
+  font-size: 15px;
+  padding: 10px 0;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+}
+
+
+.admin-submenu-item:hover {
+  color: #007bff;
+}
+
+.admin-icon {
+  font-size: 18px;
+  margin-right: 10px;
+}
+
+.admin-arrow {
+  font-size: 14px;
+  color: #777;
+  margin-left: auto;
+  transition: transform 0.2s;
+}
+
+.admin-arrow.open {
+  transform: rotate(180deg);
+}

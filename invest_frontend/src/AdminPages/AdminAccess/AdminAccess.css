@@ -1,0 +1,47 @@
+.admin-access-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: auto;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ddd;
+}
+
+.admin-access-form {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.admin-access-form label {
+  font-weight: bold;
+}
+
+.admin-access-form select {
+  padding: 6px 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.admin-username-display {
+  font-weight: bold;
+  color: #555;
+}
+
+.admin-access-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-access-table th,
+.admin-access-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.admin-access-table th {
+  background-color: #f4f4f4;
+}
