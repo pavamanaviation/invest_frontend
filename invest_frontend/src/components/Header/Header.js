@@ -7,10 +7,10 @@ import { FaUserCircle } from "react-icons/fa";
 const Header = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [showUserDropdown, setShowUserDropdown] = useState(false);
-    const isLoggedIn = !!sessionStorage.getItem("customer_id");
     const navigate = useNavigate();
 
     const dropdownRef = useRef(null);
+const isLoggedIn = sessionStorage.getItem("is_logged_in") === "true";
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);

@@ -61,6 +61,7 @@ const LoginPage = () => {
         setPopup({ isOpen: true, message: "Login Successful!", type: "success" });
         sessionStorage.setItem("customer_id", response.customer_id);
         sessionStorage.setItem("session_id", response.session_id);
+        sessionStorage.setItem("is_logged_in", "true");
         setTimeout(() => {
           navigate("/customer-dashboard");
         }, 5000);
@@ -82,6 +83,9 @@ const LoginPage = () => {
         setPopup({ isOpen: true, message: "Login Successful!", type: "success" });
         sessionStorage.setItem("customer_id", response.customer_id);
         sessionStorage.setItem("session_id", response.session_id);
+        sessionStorage.setItem("is_logged_in", "true");
+sessionStorage.setItem("customer_email", response.email);
+
         setTimeout(() => {
           navigate("/customer-dashboard");
         }, 5000);
