@@ -29,7 +29,7 @@
 //   useEffect(() => {
 //     const fetchData = async () => {
 //       try {
-//         const response = await fetch('http://127.0.0.1:8000/view-roles', {
+//         const response = await fetch('http://127.0.0.1:8080/view-roles', {
 //           method: 'POST',
 //           headers: { 'Content-Type': 'application/json' },
 //           body: JSON.stringify({ admin_id: sessionStorage.getItem('admin_id') })
@@ -69,7 +69,7 @@
 //     e.preventDefault();
 
 //     try {
-//       const response = await fetch('http://127.0.0.1:8000/update-role', {
+//       const response = await fetch('http://127.0.0.1:8080/update-role', {
 //         method: 'POST',
 //         headers: {
 //           'Content-Type': 'application/json',
@@ -234,7 +234,7 @@ const EditRole = () => {
       if (!admin_id || !role_id) return;
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/view-roles', {
+        const response = await fetch('http://127.0.0.1:8080/view-roles', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ admin_id })
@@ -273,7 +273,7 @@ const EditRole = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/update-role', {
+      const response = await fetch('http://127.0.0.1:8080/update-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

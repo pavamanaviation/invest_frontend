@@ -18,7 +18,7 @@
 
 //   const fetchRoles = async () => {
 //     try {
-//       const res = await fetch('http://127.0.0.1:8000/view-roles', {
+//       const res = await fetch('http://127.0.0.1:8080/view-roles', {
 //         method: 'POST',
 //         headers: {
 //           'Content-Type': 'application/json'
@@ -41,7 +41,7 @@
 //   const handleDelete = async (role_id) => {
 //     if (!window.confirm('Are you sure you want to disable this role?')) return;
 //     try {
-//       const res = await fetch('http://127.0.0.1:8000/delete-role', {
+//       const res = await fetch('http://127.0.0.1:8080/delete-role', {
 //         method: 'POST',
 //         headers: {
 //           'Content-Type': 'application/json'
@@ -159,7 +159,7 @@ const ViewRole = () => {
 
   const fetchRoles = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/view-roles', {
+      const res = await fetch('http://127.0.0.1:8080/view-roles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ const ViewRole = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8000/delete-role', {
+      const res = await fetch('http://127.0.0.1:8080/delete-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
