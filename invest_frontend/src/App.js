@@ -9,13 +9,14 @@ import PostSignupPage from "./pages/PostSignupDetails/PostSignupDetails";
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
 import Kyc from "./pages/KYC/KYC";
 import Payment from "./pages/Payment/Payment";
-
+import AdminRoutes from "./AdminRoutes";
 
 function App() {
   return (
     <Router>
       <Header />
       <Routes>
+        <Route path="/*" element={<AdminRoutes />} />
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />

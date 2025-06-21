@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { RiArrowLeftSLine } from "react-icons/ri";
 import { useLocation, useNavigate } from "react-router-dom";
-import { verifyCustomerOtp, registerCustomer ,verifyLoginOtp} from "../../apis/authApi"; // Resend calls same register API
+import { verifyCustomerOtp, registerCustomer, verifyLoginOtp,loginCustomer } from "../../apis/authApi"; // Resend calls same register API
 import "./VerifyOtp.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import axios from "axios";
@@ -34,92 +34,123 @@ const VerifyOtp = () => {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-const handleOtpVerification = async () => {
+  const handleOtpVerification = async () => {
+    setLoading(true);
+    try {
+      let response;
+
+      if (source === "signup" || source === "post-signup") {
+        response = await verifyCustomerOtp({
+          otp,
+          email,
+          mobile_no,
+          customer_id,
+        });
+      } else if (source === "login") {
+        response = await verifyLoginOtp({ otp, email, mobile_no });
+      }
+
+      setPopup({
+        isOpen: true,
+        message: "OTP verified successfully.",
+        type: "success",
+      });
+
+      // 🔁 Role-based redirection using ID fields
+      if (response.admin_id) {
+        sessionStorage.setItem("admin_id", response.admin_id);
+        sessionStorage.setItem("session_id", response.session_id);
+        navigate("/admin-dashboard");
+      } else if (response.role_id) {
+        sessionStorage.setItem("role_id", response.role_id);
+        sessionStorage.setItem("session_id", response.session_id);
+        navigate("/admin-dashboard");
+      } else if (response.customer_id) {
+        sessionStorage.setItem("customer_id", response.customer_id);
+        sessionStorage.setItem("session_id", response.session_id);
+        sessionStorage.setItem("customer_email", response.email);
+        if (source === "signup") {
+          navigate("/post-signup", {
+            state: {
+              email: response.email || "",
+              mobile_no: response.mobile_no?.startsWith("+")
+                ? response.mobile_no
+                : `+${response.mobile_no}`,
+            },
+          });
+        } else {
+          navigate("/customer-dashboard");
+        }
+      } else {
+        setPopup({
+          isOpen: true,
+          message: "Unable to determine login role.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      setPopup({
+        isOpen: true,
+        message: error?.error || "OTP verification failed.",
+        type: "error",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+  // const handleResendOtp = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const payload = email ? { email } : { mobile_no };
+  //     const res = await registerCustomer(payload);
+  //     //   alert(res.message || "OTP resent.");
+  //     setPopup({ isOpen: true, message: "OTP resent. " || res.message, type: "success" });
+
+  //     setTimer(120); // Reset timer
+  //   } catch (error) {
+  //     //   alert(error?.error || "Failed to resend OTP.");
+  //     console.error(error);
+  //     setPopup({ isOpen: true, message: "Failed to resend OTP.", type: "error" });
+
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const handleResendOtp = async () => {
   setLoading(true);
   try {
-    let response;
+    const payload = email ? { email } : { mobile_no };
+    let res;
 
-    if (source === "signup" || source === "post-signup") {
-      response = await verifyCustomerOtp({
-        otp,
-        email,
-        mobile_no,
-        customer_id,
-      });
-    } else if (source === "login") {
-      response = await verifyLoginOtp({ otp, email, mobile_no });
+    if (source === "login") {
+      res = await loginCustomer(payload);
+    } else {
+      res = await registerCustomer(payload);
     }
 
     setPopup({
       isOpen: true,
-      message: "OTP verified successfully.",
+      message: res.message || "OTP resent successfully.",
       type: "success",
     });
 
-    // 🔁 Role-based redirection using ID fields
-    if (response.admin_id) {
-      sessionStorage.setItem("admin_id", response.admin_id);
-      sessionStorage.setItem("session_id", response.session_id);
-      navigate("/admin-dashboard");
-    } else if (response.role_id) {
-      sessionStorage.setItem("role_id", response.role_id);
-      sessionStorage.setItem("session_id", response.session_id);
-      navigate("/admin-dashboard");
-    } else if (response.customer_id) {
-      sessionStorage.setItem("customer_id", response.customer_id);
-      sessionStorage.setItem("session_id", response.session_id);
-sessionStorage.setItem("customer_email", response.email);
-      if (source === "signup") {
-        navigate("/post-signup", {
-          state: {
-            email: response.email || "",
-            mobile_no: response.mobile_no?.startsWith("+")
-              ? response.mobile_no
-              : `+${response.mobile_no}`,
-          },
-        });
-      } else {
-        navigate("/customer-dashboard");
-      }
-    } else {
-      setPopup({
-        isOpen: true,
-        message: "Unable to determine login role.",
-        type: "error",
-      });
-    }
+    setTimer(120); // Reset timer
   } catch (error) {
+    console.error(error);
     setPopup({
       isOpen: true,
-      message: error?.error || "OTP verification failed.",
+      message: error?.error || "Failed to resend OTP.",
       type: "error",
     });
   } finally {
     setLoading(false);
   }
 };
-
-
-
-
-  const handleResendOtp = async () => {
-    setLoading(true);
-    try {
-      const payload = email ? { email } : { mobile_no };
-      const res = await registerCustomer(payload);
-      //   alert(res.message || "OTP resent.");
-      setPopup({ isOpen: true, message: "OTP resent. " || res.message, type: "success" });
-
-      setTimer(120); // Reset timer
-    } catch (error) {
-      //   alert(error?.error || "Failed to resend OTP.");
-      console.error(error);
-      setPopup({ isOpen: true, message: "Failed to resend OTP.", type: "error" });
-
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="login-container">

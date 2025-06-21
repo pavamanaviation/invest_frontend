@@ -95,26 +95,49 @@ useEffect(() => {
       const panRes = await axios.post(`${API_BASE_URL}/verify-pan`, { customer_id }, { withCredentials: true });
       const aadharRes = await axios.post(`${API_BASE_URL}/verify-aadhar-lite`, { customer_id }, { withCredentials: true });
       const bankRes = await axios.post(`${API_BASE_URL}/verify-banck-account`, { customer_id }, { withCredentials: true });
-      const nomineeRes = await axios.post(`${API_BASE_URL}/nominee-details`, { customer_id }, { withCredentials: true });
+
+      let nomineeStatus = 0;
+      try {
+        const nomineeRes = await axios.post(`${API_BASE_URL}/nominee-details`, { customer_id }, { withCredentials: true });
+        nomineeStatus = nomineeRes.data.nominee_status === 1 ? 1 : 0;
+
+        // ✅ Moved log inside try block where nomineeRes is defined
+        console.log("Nominee Status from API:", nomineeRes.data.nominee_status);
+      } catch (error) {
+        console.warn("Nominee not yet added. Defaulting to 0 status.");
+        nomineeStatus = 0;
+      }
+
       const selfieRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "selfie" }, { withCredentials: true });
-      const signatureRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id,doc_type: "signature" }, { withCredentials: true });
+      const signatureRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "signature" }, { withCredentials: true });
 
       const updatedStatus = {
         personal: personalRes.data.customer_readonly_info.personal_status,
-        identity:
-          panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
+        identity: panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
         bank: bankRes.data.bank_status === 1 ? 1 : 0,
         others:
-            nomineeRes.data.nominee_status === 1 && selfieRes.data.selfie_status === 1 && signatureRes.data.signature_status === 1
+          nomineeStatus === 1 &&
+          selfieRes.data.selfie_status === 1 &&
+          signatureRes.data.signature_status === 1
+            ? 1
+            : 0,
       };
 
       setKycStatus(updatedStatus);
+
+      console.log("Status breakdown", {
+        nominee: nomineeStatus,
+        selfie: selfieRes.data.selfie_status,
+        signature: signatureRes.data.signature_status,
+      });
+
+      console.log("Final step:", updatedStatus);
 
       if (updatedStatus.personal !== 1) setStep("personal");
       else if (updatedStatus.identity !== 1) setStep("identity");
       else if (updatedStatus.bank !== 1) setStep("bank");
       else if (updatedStatus.others !== 1) setStep("others");
-      
+
     } catch (error) {
       console.error("Failed to fetch KYC statuses", error);
     }
