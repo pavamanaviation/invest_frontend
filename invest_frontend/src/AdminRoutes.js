@@ -8,6 +8,10 @@ import AdminLayout from './components/AdminLayout/AdminLayout';
 import AdminViewRole from './AdminPages/AdminViewRole/AdminViewRole';
 import AdminEditRole from './AdminPages/AdminEditRole/AdminEditRole';
 import AccessAndSecurity from './AdminPages/AdminAccess/AdminAccess'; // correct path
+import AdminCustomerDetails from './AdminPages/AdminCustomerDetails/AdminCustomerDetails';
+import AdminCustomerMoreDetails from './AdminPages/AdminCustomerDetails/AdminCustomerMoreDetails';
+import AdminKYCDetails from './AdminPages/AdminKYCDetails/AdminKYCDetails';
+import AdminCustomerKYCMoreDetails from './AdminPages/AdminKYCDetails/AdminKYCMoreDetails';
 
 
 const AdminRoutes = () => {
@@ -24,6 +28,12 @@ const AdminRoutes = () => {
       <Route path="/edit-team" element={ <AdminLayout><AdminEditRole /></AdminLayout> }/>
       <Route path="/view-team" element={ <AdminLayout><AdminViewRole /></AdminLayout>}/>
       <Route path="/admin-access" element={<AdminLayout><AccessAndSecurity /></AdminLayout>} />
+      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>}/>
+      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>}/>
+      <Route path="/admin/customers/:id" element={<AdminLayout><AdminCustomerMoreDetails /></AdminLayout>} />
+      <Route path="/admin-kyc-details" element={<AdminLayout><AdminKYCDetails /></AdminLayout>}/>
+      <Route path="/admin/kyc/:id" element={<AdminLayout><AdminCustomerKYCMoreDetails /></AdminLayout>} />
+
 
     </Routes>
     

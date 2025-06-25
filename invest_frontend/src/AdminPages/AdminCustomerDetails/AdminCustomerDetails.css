@@ -1,0 +1,106 @@
+.admin-customer-container {
+  padding: 20px;
+}
+
+.admin-customer-heading {
+  color: #3A3A98;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+  margin: 20px auto;
+}
+
+.admin-customer-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.admin-customer-table th,
+.admin-customer-table td {
+  padding: 10px;
+  text-align: left;
+  border: none;
+  font-size: 14px;
+}
+
+.admin-customer-table th {
+  color: #3A3A98;
+  background-color: #ddd;
+  /* ensures text is readable on dark background */
+}
+
+.admin-customer-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.admin-customer-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+
+.admin-view-more-icon {
+  cursor: pointer;
+  font-size: 14px;
+  color: #3A3A98;
+  transition: transform 0.2s ease;
+}
+
+.admin-view-more-icon:hover {
+  transform: scale(1.2);
+}
+
+.admin-edit-icon,
+.admin-delete-icon {
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+
+.verified {
+  /* background-color: #d4edda; */
+  color: #155724;
+
+}
+
+.not-verified {
+  color: #db3444;
+}
+
+
+.gender-icon svg,
+.status-icon svg {
+  font-size: 32px !important;
+
+}
+
+.gender-icon.male {
+  color: rgb(58, 186, 236);
+}
+
+
+.gender-icon.female {
+  color: rgb(228, 81, 105);
+}
+
+.register-icon svg {
+  font-size: 24px !important;
+
+}
+
+.register-icon.email {
+  color: #e2847b;
+  /* Red shade */
+}
+
+.register-icon.phone {
+  color: #346aa8;
+  /* Green shade */
+}
+
+.admin-customer-count{
+      margin: 10px;
+    text-align: right;
+    color: #3A3A98;
+}

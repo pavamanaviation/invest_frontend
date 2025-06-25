@@ -1,0 +1,139 @@
+.admin-customer-more-container {
+  padding: 30px;
+  max-width: 800px;
+  margin: 30px auto;
+  background-color: #ffffff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+.admin-customer-top-div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.admin-back-div {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.admin-back-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #3a3a98;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.admin-customer-heading {
+  font-size: 24px;
+  font-weight: 600;
+  color: #3a3a98;
+}
+
+/* Content container */
+.admin-customer-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Aligned row */
+.admin-info-row {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Each label-value pair */
+.admin-info-item {
+  display: flex;
+  align-items: flex-start;
+  min-width: 100%;
+  font-size: 16px;
+  color: #333;
+  margin: 6px 0;
+}
+
+/* Fixed-width label for alignment */
+.admin-info-item-label {
+  width: 160px;
+  font-weight: 600;
+  color: #222;
+  flex-shrink: 0;
+}
+
+/* Content area */
+.admin-info-item-value {
+  flex: 1;
+  color: #555;
+}
+
+/* Image styles */
+.admin-info-item-value img {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-top: 5px;
+  object-fit: cover;
+  width: 120px;
+  height: 120px;
+}
+
+.customer-loader,
+.customer-error {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #555;
+}
+
+
+.admin-sign-img{
+    /* width: 400px !important; */
+    width: 90% !important;
+
+}
+
+.admin-info-section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.admin-section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #3a3a98;
+  margin-bottom: 10px;
+}
+
+
+.admin-personal-selfie-wrapper {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.admin-personal-details {
+  flex: 1;
+  min-width: 250px;
+}
+
+.admin-selfie-display {
+  flex-shrink: 0;
+}
+
+.admin-selfie-img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}

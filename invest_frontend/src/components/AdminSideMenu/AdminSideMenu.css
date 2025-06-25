@@ -1,9 +1,9 @@
 .admin-side-menu {
-  width: 250px;
+  max-width: 250px;
   min-height: 100vh;
   background-color: #ffffff;
   border-right: 1px solid #e0e0e0;
-  padding: 20px 0;
+  padding: 20px;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   font-family: 'Segoe UI', sans-serif;
 }
@@ -14,7 +14,7 @@
 
 .admin-menu-item {
  
-  color: #444;
+  color: #3A3A98;
   font-size: 16px;
   font-weight: 500;
   padding: 12px 20px;
@@ -36,8 +36,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #444;
-  font-size: 15px;
+    color: #3A3A98;
+
+  font-size: 16px;
   padding: 10px 0;
   text-decoration: none;
   transition: color 0.2s ease-in-out;
@@ -49,17 +50,27 @@
 }
 
 .admin-icon {
-  font-size: 18px;
+  font-size: 22px;
   margin-right: 10px;
 }
 
 .admin-arrow {
-  font-size: 14px;
-  color: #777;
+  font-size: 20px;
+  color: #3A3A98;
+
   margin-left: auto;
   transition: transform 0.2s;
 }
 
 .admin-arrow.open {
   transform: rotate(180deg);
+}
+
+/* Active menu item */
+.admin-menu-item.active,
+.admin-submenu-item.active {
+  background-color: #e6e9ff;
+  color: #2d2d80;
+  font-weight: 600;
+  border-left: 4px solid #3a3a98;
 }

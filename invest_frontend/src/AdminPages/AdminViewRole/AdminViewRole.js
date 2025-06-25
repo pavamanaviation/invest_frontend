@@ -141,6 +141,7 @@ import { FaRegEdit } from 'react-icons/fa';
 import './AdminViewRole.css';
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from '../../components/PopupMessage/PopupMessage';
+import API_BASE_URL from '../../config';
 
 const ViewRole = () => {
   const [roles, setRoles] = useState([]);
@@ -159,7 +160,7 @@ const ViewRole = () => {
 
   const fetchRoles = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8080/view-roles', {
+      const res = await fetch(`${API_BASE_URL}/view-roles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -186,7 +187,7 @@ const ViewRole = () => {
 
   const handleConfirmDelete = async () => {
     try {
-      const res = await fetch('http://127.0.0.1:8080/delete-role', {
+      const res = await fetch(`${API_BASE_URL}/delete-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

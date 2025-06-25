@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import "./AdminLogin.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import { IoMdEyeOff, IoMdEye } from "react-icons/io";
+import API_BASE_URL from "../../config";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ const AdminLogin = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8080/admin-login", {
+      const response = await fetch(`${API_BASE_URL}/admin-login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -60,7 +61,7 @@ const AdminLogin = () => {
   const handleVerifyOtp = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8080/admin-verify-otp", {
+      const response = await fetch(`${API_BASE_URL}/admin-verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
