@@ -137,3 +137,13 @@
   border-radius: 8px;
   border: 1px solid #ccc;
 }
+
+.status-text.verified {
+  color: green;
+  font-weight: 600;
+}
+
+.status-text.not-verified {
+  color: red;
+  font-weight: 600;
+}

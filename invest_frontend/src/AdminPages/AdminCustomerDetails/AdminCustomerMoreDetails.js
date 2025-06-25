@@ -105,7 +105,14 @@ const AdminCustomerMoreDetails = () => {
           <div className="admin-section-title">Account Information</div>
           {[
             ["Register Type", customer.register_type],
-            ["Account Status", customer.account_status === 1 ? "Verified" : "Not Verified"],
+            // ["Account Status", customer.account_status === 1 ? "Verified" : "Not Verified"],
+            [
+  "Account Status",
+  <span className={customer.account_status === 1 ? "status-text verified" : "status-text not-verified"}>
+    {customer.account_status === 1 ? "Verified" : "Not Verified"}
+  </span>
+],
+
             ["Created At", customer.created_at]
           ].map(([label, value], i) => (
             <div className="admin-info-row" key={i}>
