@@ -12,6 +12,7 @@ import AdminCustomerDetails from './AdminPages/AdminCustomerDetails/AdminCustome
 import AdminCustomerMoreDetails from './AdminPages/AdminCustomerDetails/AdminCustomerMoreDetails';
 import AdminKYCDetails from './AdminPages/AdminKYCDetails/AdminKYCDetails';
 import AdminCustomerKYCMoreDetails from './AdminPages/AdminKYCDetails/AdminKYCMoreDetails';
+import AdminNomineeDetails from './AdminPages/AdminNomineeDetails/AdminNomineeDetails';
 
 
 const AdminRoutes = () => {
@@ -33,6 +34,7 @@ const AdminRoutes = () => {
       <Route path="/admin/customers/:id" element={<AdminLayout><AdminCustomerMoreDetails /></AdminLayout>} />
       <Route path="/admin-kyc-details" element={<AdminLayout><AdminKYCDetails /></AdminLayout>}/>
       <Route path="/admin/kyc/:id" element={<AdminLayout><AdminCustomerKYCMoreDetails /></AdminLayout>} />
+      <Route path="/admin-nominee-details" element={<AdminLayout><AdminNomineeDetails /></AdminLayout>}/>
 
 
     </Routes>

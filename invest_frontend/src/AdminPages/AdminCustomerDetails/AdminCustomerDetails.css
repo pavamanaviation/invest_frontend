@@ -71,7 +71,7 @@
 
 .gender-icon svg,
 .status-icon svg {
-  font-size: 32px !important;
+  font-size: 24px !important;
 
 }
 
@@ -99,8 +99,114 @@
   /* Green shade */
 }
 
-.admin-customer-count{
-      margin: 10px;
-    text-align: right;
-    color: #3A3A98;
+.admin-customer-count {
+  margin: 10px;
+  text-align: right;
+  color: #3A3A98;
+}
+
+.gender-avatar-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gender-avatar-img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #ccc;
+}
+
+.status-icon.not-verified.kyc svg {
+  animation: spin 1s linear infinite;
+  color: #f34612;
+  /* Optional: golden for "in progress" */
+  font-size: 16px !important;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+
+.status-icon.verified.kyc {
+  color: #3A3A98;
+}
+
+
+
+.admin-toggle-search-btn {
+  background-color: #f2f2f2;
+  border: 1px solid #ccc;
+  padding: 6px 14px;
+  font-size: 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease;
+  color: #3A3A98;
+}
+
+
+/* Search Filter Section */
+.admin-search-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 12px;
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* Inputs & Selects */
+.admin-search-section input,
+.admin-search-section select {
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 200px;
+}
+
+.admin-btns {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  color: white;
+
+
+}
+
+/* Search Button */
+.admin-search-btn {
+  background-color: #3A3A98;
+
+}
+
+.admin-clear-btn {
+  background-color: grey;
+
+}
+
+.admin-search-count-section {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.admin-toggle-search-btn.kyc{
+  margin-bottom: 20px ;
 }

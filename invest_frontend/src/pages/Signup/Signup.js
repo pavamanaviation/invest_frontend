@@ -150,7 +150,7 @@ const SignupPage = () => {
         try {
             const payload = isEmail
                 ? { email: emailOrMobile }
-                : { mobile_no: `+${emailOrMobile}` };
+                : { mobile_no: `${emailOrMobile}` };
 
             const response = await registerCustomer(payload);
             sessionStorage.setItem("customer_id", response.customer_id);

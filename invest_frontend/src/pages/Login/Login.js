@@ -44,7 +44,7 @@ const LoginPage = () => {
     try {
       const payload = isEmail
         ? { email: emailOrMobile }
-        : { mobile_no: `+${emailOrMobile}` };
+        : { mobile_no: `${emailOrMobile}` };
 
       const response = await loginCustomer(payload);
 

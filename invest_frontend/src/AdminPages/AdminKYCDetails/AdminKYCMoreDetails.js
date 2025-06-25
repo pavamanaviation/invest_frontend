@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config";
 import { MdKeyboardArrowLeft } from "react-icons/md";
 import "../AdminCustomerDetails/AdminCustomerMoreDetails.css";
+import "../AdminKYCDetails/AdminKYCDetails.css";
 
 const AdminCustomerKYCMoreDetails = () => {
   const { id } = useParams();
@@ -57,7 +58,7 @@ const AdminCustomerKYCMoreDetails = () => {
       <div className="admin-customer-info">
 
         {/* PAN Information */}
-        <div className="admin-info-section">
+        {/* <div className="admin-info-section">
           <div className="admin-section-title">PAN Information</div>
           <div className="admin-info-row">
             <div className="admin-info-item">
@@ -67,55 +68,83 @@ const AdminCustomerKYCMoreDetails = () => {
             <div className="admin-info-item">
               <div className="admin-info-item-label">PAN Status:</div>
               <div className="admin-info-item-value">
-                {kycData.pan_status === 1
-                  ? "Verified"
-                  : kycData.pan_status === 2
-                  ? "Rejected"
-                  : "Pending"}
+                <div className={`admin-info-item-value status-text ${kycData.pan_status === 1
+                    ? "verified"
+
+                    : "pending"
+                  }`}>
+                  {kycData.pan_status === 1
+                    ? "Verified"
+
+                    : "Pending"}
+                </div>
+
               </div>
             </div>
           </div>
           {kycData.pan_path && (
-            <div className="admin-info-row">
+                         <div className="admin-doc-right">
+  <img src={kycData.pan_path} alt="PAN" className="admin-doc-img" />
+</div>
+          )}
+        </div> */}
+
+
+        <div className="admin-info-section">
+          <div className="admin-section-title">PAN Information</div>
+          <div className="admin-info-row image-right-layout">
+            <div className="admin-info-left">
               <div className="admin-info-item">
-                <div className="admin-info-item-label">PAN Document:</div>
-                <div className="admin-info-item-value">
-                  <img src={kycData.pan_path} alt="PAN" className="admin-doc-img" />
+                <div className="admin-info-item-label">PAN Number:</div>
+                <div className="admin-info-item-value">{kycData.pan_number || "-"}</div>
+              </div>
+              <div className="admin-info-item">
+                <div className="admin-info-item-label">PAN Status:</div>
+                <div className={`admin-info-item-value status-text ${kycData.pan_status === 1 ? "verified" : "not-verified"}`}>
+                  {kycData.pan_status === 1 ? "Verified" : "Pending"}
                 </div>
               </div>
+              <div className="admin-info-item">
+                <div className="admin-info-item-label">Submitted at :</div>
+                <div className="admin-info-item-value">{}</div>
+              </div>
             </div>
-          )}
+            {kycData.pan_path && (
+              <div className="admin-doc-right">
+                <img src={kycData.pan_path} alt="PAN" className="admin-doc-img" />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Aadhar Information */}
+
+
+        {/* AAdhar Information */}
         <div className="admin-info-section">
           <div className="admin-section-title">Aadhar Information</div>
-          <div className="admin-info-row">
-            <div className="admin-info-item">
-              <div className="admin-info-item-label">Aadhar Number:</div>
-              <div className="admin-info-item-value">{kycData.aadhar_number || "-"}</div>
-            </div>
-            <div className="admin-info-item">
-              <div className="admin-info-item-label">Aadhar Status:</div>
-              <div className="admin-info-item-value">
-                {kycData.aadhar_status === 1
-                  ? "Verified"
-                  : kycData.aadhar_status === 2
-                  ? "Rejected"
-                  : "Pending"}
-              </div>
-            </div>
-          </div>
-          {kycData.aadhar_path && (
-            <div className="admin-info-row">
+          <div className="admin-info-row image-right-layout">
+            <div className="admin-info-left">
               <div className="admin-info-item">
-                <div className="admin-info-item-label">Aadhar Document:</div>
-                <div className="admin-info-item-value">
-                  <img src={kycData.aadhar_path} alt="Aadhar" className="admin-doc-img" />
+                <div className="admin-info-item-label">Aadhar Number:</div>
+                <div className="admin-info-item-value">{kycData.aadhar_number || "-"}</div>
+              </div>
+              <div className="admin-info-item">
+                <div className="admin-info-item-label">Aadhar Status:</div>
+                <div className={`admin-info-item-value status-text ${kycData.aadhar_status === 1 ? "verified" : "not-verified"}`}>
+                  {kycData.aadhar_status === 1 ? "Verified" : "Pending"}
                 </div>
               </div>
+                <div className="admin-info-item">
+                <div className="admin-info-item-label">Submitted at :</div>
+                <div className="admin-info-item-value">{}</div>
+              </div>
             </div>
-          )}
+            {kycData.pan_path && (
+              <div className="admin-doc-right">
+                <img src={kycData.aadhar_path} alt="Aadhar" className="admin-doc-img" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Bank Information */}
@@ -133,13 +162,23 @@ const AdminCustomerKYCMoreDetails = () => {
             <div className="admin-info-item">
               <div className="admin-info-item-label">Bank Status:</div>
               <div className="admin-info-item-value">
-                {kycData.bank_status === 1
-                  ? "Verified"
-                  : kycData.bank_status === 2
-                  ? "Rejected"
-                  : "Pending"}
+                <div className={`admin-info-item-value status-text ${kycData.bank_status === 1
+                  ? "verified"
+
+                  : "not-verified"
+                  }`}>
+                  {kycData.bank_status === 1
+                    ? "Verified"
+
+                    : "Pending"}
+                </div>
+
               </div>
             </div>
+              <div className="admin-info-item">
+                <div className="admin-info-item-label">Submitted at :</div>
+                <div className="admin-info-item-value">{}</div>
+              </div>
           </div>
         </div>
 
