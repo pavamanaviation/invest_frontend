@@ -9,7 +9,7 @@ import API_BASE_URL from "../../../src/config";
 const CustomerDashboard = () => {
     const location = useLocation();
     const navigate = useNavigate();
-const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     const customer_id = sessionStorage.getItem("customer_id");
 
@@ -62,7 +62,7 @@ const [loading, setLoading] = useState(true);
         const fetchAllStatuses = async () => {
             const customer_id = sessionStorage.getItem("customer_id");
             if (!customer_id) return;
-    setLoading(true);
+            setLoading(true);
             try {
                 const personalRes = await axios.post(`${API_BASE_URL}/customer-more-details`, { customer_id }, { withCredentials: true });
                 const panRes = await axios.post(`${API_BASE_URL}/verify-pan`, { customer_id }, { withCredentials: true });
@@ -77,8 +77,8 @@ const [loading, setLoading] = useState(true);
                     identity: panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
                     bank: bankRes.data.bank_status === 1 ? 1 : 0,
                     others: nomineeRes.data.nominee_status === 1 &&
-                            selfieRes.data.selfie_status === 1 &&
-                            signatureRes.data.signature_status === 1 ? 1 : 0,
+                        selfieRes.data.selfie_status === 1 &&
+                        signatureRes.data.signature_status === 1 ? 1 : 0,
                 };
 
                 setKycStatus(updatedStatus);
@@ -89,12 +89,14 @@ const [loading, setLoading] = useState(true);
                 console.error("Failed to fetch KYC statuses", error);
             }
             finally {
-            setLoading(false); // Hide loader
-        }
+                setLoading(false); // Hide loader
+            }
         };
 
         fetchAllStatuses();
     }, []);
+
+
 
     const handleKyc = () => {
         if (!customer_id) {
@@ -150,6 +152,27 @@ const [loading, setLoading] = useState(true);
         }
     };
 
+    const [isFullPaymentDone, setIsFullPaymentDone] = useState(false);
+
+    useEffect(() => {
+        const checkPaymentStatus = async () => {
+            try {
+                const res = await axios.get(`${API_BASE_URL}/payment-status-check`, {
+                    params: { customer_id },
+                    withCredentials: true,
+                });
+
+                if (res.data.completed) {
+                    setIsFullPaymentDone(true);
+                }
+            } catch (err) {
+                console.error("Error checking payment status:", err);
+            }
+        };
+
+        if (customer_id) checkPaymentStatus();
+    }, [customer_id]);
+
     const handlePaymentAcceptAndProceed = async () => {
         try {
             const res = await axios.post(
@@ -193,33 +216,41 @@ const [loading, setLoading] = useState(true);
                         <img src={Tejas} className="cd-image" alt="Teja Drone" />
                         <a href="#">Know More Details...</a>
                     </div>
-               
+
                     <div className="cd-buttons">
-    {loading ? (
-        <div className="cd-loading">Loading KYC status...</div>
-    ) : (
-        <>
-            <button
-                className="primary-button cd-button"
-                onClick={handleKyc}
-                disabled={kycCompleted}
-            >
-                {kycCompleted ? "KYC Completed" : "Complete KYC"}
-            </button>
-            <button
-                className="primary-button cd-button"
-                onClick={handlePayment}
-                disabled={!kycCompleted}
-            >
-                Proceed to Payment
-            </button>
-        </>
-    )}
-</div>
+                        {loading ? (
+                            <div className="cd-loading">Loading KYC status...</div>
+                        ) : (
+                            <>
+                                <button
+                                    className="primary-button cd-button"
+                                    onClick={handleKyc}
+                                    disabled={kycCompleted}
+                                >
+                                    {kycCompleted ? "KYC Completed" : "Complete KYC"}
+                                </button>
+                                {/* <button
+                                    className="primary-button cd-button"
+                                    onClick={handlePayment}
+                                    disabled={!kycCompleted}
+                                >
+                                    Proceed to Payment
+                                </button> */}
+                                <button
+                                    className="primary-button cd-button"
+                                    onClick={handlePayment}
+                                    disabled={!kycCompleted || isFullPaymentDone}
+                                >
+                                    {isFullPaymentDone ? "PaymentCompleted" : "Proceed to Payment"}
+                                </button>
+
+                            </>
+                        )}
+                    </div>
 
                 </div>
 
- 
+
 
 
                 <div className="cd-plans-section">

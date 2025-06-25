@@ -190,6 +190,7 @@ import 'react-phone-input-2/lib/style.css';
 import PopupMessage from '../../components/PopupMessage/PopupMessage';
 import PhoneInput from 'react-phone-input-2';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from "../../../src/config";
 
 const AddRole = () => {
   const [formData, setFormData] = useState({
@@ -228,7 +229,7 @@ const AddRole = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:8080/register-role', {
+      const response = await fetch(`${API_BASE_URL}/register-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

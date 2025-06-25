@@ -62,3 +62,10 @@
     opacity: 1;
   }
 }
+
+
+@media (max-width: 425px) {
+  .popup-box {
+    width: 75%;
+  }
+}

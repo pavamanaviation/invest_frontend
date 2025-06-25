@@ -25,6 +25,23 @@ const [paymentDone, setPaymentDone] = useState(false);
 const [isPaymentComplete, setIsPaymentComplete] = useState(false);
 
 
+useEffect(() => {
+  const fetchPaymentStatus = async () => {
+    try {
+      const response = await getPaymentStatus(customer_id); // Make sure this API hits `/payment-status-check`
+      if (response.completed) {
+        setIsPaymentComplete(true);
+      }
+    } catch (error) {
+      console.error("Error fetching payment status:", error);
+    }
+  };
+
+  if (customer_id) {
+    fetchPaymentStatus();
+  }
+}, [customer_id]);
+
 
 const handleFullPayment = async () => {
   try {
@@ -215,7 +232,7 @@ const handleProceedToPay = async () => {
           <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
         </div>
 
-        <div className='payment-btns'>
+        {/* <div className='payment-btns'>
           <button
             className='primary-button full-payment-btn'
             onClick={handleFullPayment}
@@ -230,7 +247,25 @@ const handleProceedToPay = async () => {
           >
             Installment Payment
           </button>
-        </div>
+        </div> */}
+
+
+<div className='payment-btns'>
+  <button
+    className='primary-button full-payment-btn'
+    onClick={handleFullPayment}
+    disabled={isPaymentComplete || selectedPayment === "installment"}
+  >
+    Full Payment
+  </button>
+  <button
+    className='primary-button inst-payment-btn'
+    onClick={handleInstallmentPayment}
+    disabled={isPaymentComplete || selectedPayment === "full"}
+  >
+    Installment Payment
+  </button>
+</div>
 
         {/* Full Payment Popup */}
         {/* {showPopup === "full" && (

@@ -3,6 +3,7 @@ import { RiArrowLeftSLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import "./AdminVerifyOTP.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
+import API_BASE_URL from "../../config";
 
 const AdminVerifyOtp = () => {
   const [otp, setOtp] = useState("");
@@ -15,7 +16,7 @@ const AdminVerifyOtp = () => {
   const handleOtpVerification = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8080/admin-verify-otp", {
+      const response = await fetch(`${API_BASE_URL}/admin-verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -44,7 +44,7 @@ const LoginPage = () => {
     try {
       const payload = isEmail
         ? { email: emailOrMobile }
-        : { mobile_no: `+${emailOrMobile}` }; // Include "+" for full number
+        : { mobile_no: `+${emailOrMobile}` };
 
       const response = await loginCustomer(payload);
 
@@ -84,7 +84,7 @@ const LoginPage = () => {
         sessionStorage.setItem("customer_id", response.customer_id);
         sessionStorage.setItem("session_id", response.session_id);
         sessionStorage.setItem("is_logged_in", "true");
-sessionStorage.setItem("customer_email", response.email);
+        sessionStorage.setItem("customer_email", response.email);
 
         setTimeout(() => {
           navigate("/customer-dashboard");

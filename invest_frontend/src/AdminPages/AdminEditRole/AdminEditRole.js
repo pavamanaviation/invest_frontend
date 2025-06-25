@@ -207,6 +207,7 @@ import 'react-phone-input-2/lib/style.css';
 import PopupMessage from '../../components/PopupMessage/PopupMessage';
 import PhoneInput from 'react-phone-input-2';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../../config';
 
 const EditRole = () => {
   const navigate = useNavigate();
@@ -234,7 +235,7 @@ const EditRole = () => {
       if (!admin_id || !role_id) return;
 
       try {
-        const response = await fetch('http://127.0.0.1:8080/view-roles', {
+        const response = await fetch(`${API_BASE_URL}0/view-roles`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ admin_id })
@@ -273,7 +274,7 @@ const EditRole = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://127.0.0.1:8080/update-role', {
+      const response = await fetch(`${API_BASE_URL}/update-role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
