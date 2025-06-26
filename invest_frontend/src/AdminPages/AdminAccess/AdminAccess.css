@@ -45,3 +45,13 @@
 .admin-access-table th {
   background-color: #f4f4f4;
 }
+
+
+.mode-radio-group {
+  display: flex;
+  gap: 12px;
+}
+
+.mode-radio input[type="radio"] {
+  margin-right: 4px;
+}

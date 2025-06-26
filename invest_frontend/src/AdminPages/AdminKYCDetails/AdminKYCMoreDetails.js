@@ -7,9 +7,9 @@ import "../AdminKYCDetails/AdminKYCDetails.css";
 
 const AdminCustomerKYCMoreDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [kycData, setKycData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchKYCDetails = async () => {
@@ -32,9 +32,9 @@ const AdminCustomerKYCMoreDetails = () => {
         } else {
           console.error("API error:", data.error);
         }
-        setLoading(false);
       } catch (err) {
         console.error("Network error:", err);
+      } finally {
         setLoading(false);
       }
     };
@@ -44,6 +44,19 @@ const AdminCustomerKYCMoreDetails = () => {
 
   if (loading) return <div className="customer-loader">Loading...</div>;
   if (!kycData) return <div className="customer-error">KYC details not found</div>;
+
+  const renderStatus = (status) => (
+    <div className={`admin-info-item-value status-text ${status === 1 ? "verified" : "not-verified"}`}>
+      {status === 1 ? "Verified" : "Pending"}
+    </div>
+  );
+
+  const renderSubmittedAt = () => (
+    <div className="admin-info-item">
+      <div className="admin-info-item-label">Submitted At:</div>
+      <div className="admin-info-item-value">{kycData.created_at || "-"}</div>
+    </div>
+  );
 
   return (
     <div className="admin-customer-container admin-customer-more-container">
@@ -56,40 +69,7 @@ const AdminCustomerKYCMoreDetails = () => {
       </div>
 
       <div className="admin-customer-info">
-
-        {/* PAN Information */}
-        {/* <div className="admin-info-section">
-          <div className="admin-section-title">PAN Information</div>
-          <div className="admin-info-row">
-            <div className="admin-info-item">
-              <div className="admin-info-item-label">PAN Number:</div>
-              <div className="admin-info-item-value">{kycData.pan_number || "-"}</div>
-            </div>
-            <div className="admin-info-item">
-              <div className="admin-info-item-label">PAN Status:</div>
-              <div className="admin-info-item-value">
-                <div className={`admin-info-item-value status-text ${kycData.pan_status === 1
-                    ? "verified"
-
-                    : "pending"
-                  }`}>
-                  {kycData.pan_status === 1
-                    ? "Verified"
-
-                    : "Pending"}
-                </div>
-
-              </div>
-            </div>
-          </div>
-          {kycData.pan_path && (
-                         <div className="admin-doc-right">
-  <img src={kycData.pan_path} alt="PAN" className="admin-doc-img" />
-</div>
-          )}
-        </div> */}
-
-
+        {/* PAN Section */}
         <div className="admin-info-section">
           <div className="admin-section-title">PAN Information</div>
           <div className="admin-info-row image-right-layout">
@@ -100,14 +80,9 @@ const AdminCustomerKYCMoreDetails = () => {
               </div>
               <div className="admin-info-item">
                 <div className="admin-info-item-label">PAN Status:</div>
-                <div className={`admin-info-item-value status-text ${kycData.pan_status === 1 ? "verified" : "not-verified"}`}>
-                  {kycData.pan_status === 1 ? "Verified" : "Pending"}
-                </div>
+                {renderStatus(kycData.pan_status)}
               </div>
-              <div className="admin-info-item">
-                <div className="admin-info-item-label">Submitted at :</div>
-                <div className="admin-info-item-value">{}</div>
-              </div>
+              {renderSubmittedAt()}
             </div>
             {kycData.pan_path && (
               <div className="admin-doc-right">
@@ -117,9 +92,7 @@ const AdminCustomerKYCMoreDetails = () => {
           </div>
         </div>
 
-
-
-        {/* AAdhar Information */}
+        {/* Aadhar Section */}
         <div className="admin-info-section">
           <div className="admin-section-title">Aadhar Information</div>
           <div className="admin-info-row image-right-layout">
@@ -130,16 +103,11 @@ const AdminCustomerKYCMoreDetails = () => {
               </div>
               <div className="admin-info-item">
                 <div className="admin-info-item-label">Aadhar Status:</div>
-                <div className={`admin-info-item-value status-text ${kycData.aadhar_status === 1 ? "verified" : "not-verified"}`}>
-                  {kycData.aadhar_status === 1 ? "Verified" : "Pending"}
-                </div>
+                {renderStatus(kycData.aadhar_status)}
               </div>
-                <div className="admin-info-item">
-                <div className="admin-info-item-label">Submitted at :</div>
-                <div className="admin-info-item-value">{}</div>
-              </div>
+              {renderSubmittedAt()}
             </div>
-            {kycData.pan_path && (
+            {kycData.aadhar_path && (
               <div className="admin-doc-right">
                 <img src={kycData.aadhar_path} alt="Aadhar" className="admin-doc-img" />
               </div>
@@ -147,7 +115,7 @@ const AdminCustomerKYCMoreDetails = () => {
           </div>
         </div>
 
-        {/* Bank Information */}
+        {/* Bank Section */}
         <div className="admin-info-section">
           <div className="admin-section-title">Bank Information</div>
           <div className="admin-info-row">
@@ -161,35 +129,17 @@ const AdminCustomerKYCMoreDetails = () => {
             </div>
             <div className="admin-info-item">
               <div className="admin-info-item-label">Bank Status:</div>
-              <div className="admin-info-item-value">
-                <div className={`admin-info-item-value status-text ${kycData.bank_status === 1
-                  ? "verified"
-
-                  : "not-verified"
-                  }`}>
-                  {kycData.bank_status === 1
-                    ? "Verified"
-
-                    : "Pending"}
-                </div>
-
-              </div>
+              {renderStatus(kycData.bank_status)}
             </div>
-              <div className="admin-info-item">
-                <div className="admin-info-item-label">Submitted at :</div>
-                <div className="admin-info-item-value">{}</div>
-              </div>
+            {renderSubmittedAt()}
           </div>
         </div>
 
-        {/* Created At */}
+        {/* Submission Time (Global) */}
         <div className="admin-info-section">
           <div className="admin-section-title">Submission Info</div>
           <div className="admin-info-row">
-            <div className="admin-info-item">
-              <div className="admin-info-item-label">Submitted At:</div>
-              <div className="admin-info-item-value">{kycData.created_at}</div>
-            </div>
+            {renderSubmittedAt()}
           </div>
         </div>
       </div>

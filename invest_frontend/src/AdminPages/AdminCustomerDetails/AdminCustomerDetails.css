@@ -210,3 +210,40 @@
 .admin-toggle-search-btn.kyc{
   margin-bottom: 20px ;
 }
+
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  gap: 16px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.pagination-btn {
+  background-color: #3A3A98;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: #0041a8;
+}
+
+.pagination-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination-page-info {
+  font-size: 15px;
+}
+
+.admin-search-toggle-container{
+  margin-top: 16px;
+}
