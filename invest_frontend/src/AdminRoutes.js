@@ -13,6 +13,7 @@ import AdminCustomerMoreDetails from './AdminPages/AdminCustomerDetails/AdminCus
 import AdminKYCDetails from './AdminPages/AdminKYCDetails/AdminKYCDetails';
 import AdminCustomerKYCMoreDetails from './AdminPages/AdminKYCDetails/AdminKYCMoreDetails';
 import AdminNomineeDetails from './AdminPages/AdminNomineeDetails/AdminNomineeDetails';
+import AdminNomineeMoreDetails from './AdminPages/AdminNomineeDetails/AdminNomineeMoreDetails';
 
 
 const AdminRoutes = () => {
@@ -24,21 +25,22 @@ const AdminRoutes = () => {
 
 
       {/* Protected/Admin Layout routes */}
-      <Route path="/admin-dashboard" element={ <AdminLayout> <AdminDashboard /></AdminLayout> }/>
-      <Route path="/add-team" element={<AdminLayout><AdminAddRole /></AdminLayout>}/>
-      <Route path="/edit-team" element={ <AdminLayout><AdminEditRole /></AdminLayout> }/>
-      <Route path="/view-team" element={ <AdminLayout><AdminViewRole /></AdminLayout>}/>
+      <Route path="/admin-dashboard" element={<AdminLayout> <AdminDashboard /></AdminLayout>} />
+      <Route path="/add-team" element={<AdminLayout><AdminAddRole /></AdminLayout>} />
+      <Route path="/edit-team" element={<AdminLayout><AdminEditRole /></AdminLayout>} />
+      <Route path="/view-team" element={<AdminLayout><AdminViewRole /></AdminLayout>} />
       <Route path="/admin-access" element={<AdminLayout><AccessAndSecurity /></AdminLayout>} />
-      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>}/>
-      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>}/>
+      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>} />
+      <Route path="/admin-customer-details" element={<AdminLayout><AdminCustomerDetails /></AdminLayout>} />
       <Route path="/admin/customers/:id" element={<AdminLayout><AdminCustomerMoreDetails /></AdminLayout>} />
-      <Route path="/admin-kyc-details" element={<AdminLayout><AdminKYCDetails /></AdminLayout>}/>
+      <Route path="/admin-kyc-details" element={<AdminLayout><AdminKYCDetails /></AdminLayout>} />
       <Route path="/admin/kyc/:id" element={<AdminLayout><AdminCustomerKYCMoreDetails /></AdminLayout>} />
-      <Route path="/admin-nominee-details" element={<AdminLayout><AdminNomineeDetails /></AdminLayout>}/>
+      <Route path="/admin-nominee-details" element={<AdminLayout><AdminNomineeDetails /></AdminLayout>} />
 
+      <Route path="/admin/nominees/:id" element={<AdminLayout><AdminNomineeMoreDetails /></AdminLayout>} />
 
     </Routes>
-    
+
   );
 };
 

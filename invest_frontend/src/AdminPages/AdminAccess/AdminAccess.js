@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AdminAccess.css';
+import API_BASE_URL from '../../config';
 
 const users = [
   { id: 1, name: 'Varsha', email: 'varsha@kapilitshub.com' },
@@ -7,29 +8,52 @@ const users = [
   { id: 3, name: 'Meena', email: 'meena@kapilitshub.com' }
 ];
 
-const permissions = [
-  'View campaigns and use planning tools',
-  'Customer Details',
-  'KYC Details',
-  'Nominee Details',
-  'View billing information',
-  'Edit billing information',
-  'View reports',
-  'Edit reports',
-  'View users, managers, and product links',
-  'Add email only users',
-  'Edit users, managers, and product links'
-];
-
 const AccessAndSecurity = () => {
   const [selectedUser, setSelectedUser] = useState(users[0].email);
   const [expire, setExpire] = useState('Never');
   const [accessRights, setAccessRights] = useState({});
+  const [permissions, setPermissions] = useState([]);
+
+  useEffect(() => {
+    const fetchPermissions = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/permission-data`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ admin_id: sessionStorage.getItem('admin_id') }),
+        });
+        const data = await res.json();
+        if (data.models) {
+          setPermissions(Object.values(data.models));
+        }
+      } catch (err) {
+        console.error("Failed to fetch permissions:", err);
+      }
+    };
+
+    fetchPermissions();
+  }, []);
 
   const handleCheckboxChange = (permission) => {
     setAccessRights((prev) => ({
       ...prev,
-      [permission]: !prev[permission]
+      [permission]: {
+        ...prev[permission],
+        allowed: !prev[permission]?.allowed,
+        mode: prev[permission]?.mode || 'view'
+      }
+    }));
+  };
+
+  const handleModeChange = (permission, mode) => {
+    setAccessRights((prev) => ({
+      ...prev,
+      [permission]: {
+        ...prev[permission],
+        mode
+      }
     }));
   };
 
@@ -66,21 +90,43 @@ const AccessAndSecurity = () => {
           <tr>
             <th>Permission</th>
             <th>Allowed</th>
+            <th>Mode</th>
           </tr>
         </thead>
         <tbody>
-          {permissions.map((permission, idx) => (
-            <tr key={idx}>
-              <td>{permission}</td>
-              <td>
-                <input
-                  type="checkbox"
-                  checked={accessRights[permission] || false}
-                  onChange={() => handleCheckboxChange(permission)}
-                />
-              </td>
-            </tr>
-          ))}
+          {permissions.map((permission, idx) => {
+            const rights = accessRights[permission] || {};
+            return (
+              <tr key={idx}>
+                <td>{permission}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={rights.allowed || false}
+                    onChange={() => handleCheckboxChange(permission)}
+                  />
+                </td>
+                <td>
+                  {rights.allowed && (
+                    <div className="mode-radio-group">
+                      {['view', 'edit', 'delete'].map((mode) => (
+                        <label key={mode} className="mode-radio">
+                          <input
+                            type="radio"
+                            name={`mode-${idx}`}
+                            value={mode}
+                            checked={rights.mode === mode}
+                            onChange={() => handleModeChange(permission, mode)}
+                          />
+                          {mode.charAt(0).toUpperCase() + mode.slice(1)}
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
