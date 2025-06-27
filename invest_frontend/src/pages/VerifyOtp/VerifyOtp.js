@@ -58,14 +58,24 @@ const VerifyOtp = () => {
 
       // 🔁 Role-based redirection using ID fields
       if (response.admin_id) {
+        sessionStorage.clear()
         sessionStorage.setItem("admin_id", response.admin_id);
         sessionStorage.setItem("session_id", response.session_id);
+        sessionStorage.setItem('role_type',"admin"); 
+        sessionStorage.setItem("is_logged_in", "true");
+
         navigate("/admin-dashboard");
       } else if (response.role_id) {
+        sessionStorage.clear()
+
         sessionStorage.setItem("role_id", response.role_id);
         sessionStorage.setItem("session_id", response.session_id);
-        navigate("/admin-dashboard");
+        sessionStorage.setItem("is_logged_in", "true");
+
+        navigate("/role-dashboard");
       } else if (response.customer_id) {
+        sessionStorage.clear()
+
         sessionStorage.setItem("customer_id", response.customer_id);
         sessionStorage.setItem("session_id", response.session_id);
         sessionStorage.setItem("customer_email", response.email);

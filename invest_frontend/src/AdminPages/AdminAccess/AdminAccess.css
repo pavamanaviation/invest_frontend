@@ -2,27 +2,32 @@
   padding: 20px;
   /* max-width: 800px; */
   margin: auto;
-  background: #fff;
   border-radius: 10px;
   box-shadow: 0 0 10px #ddd;
+
 }
 
 .admin-access-form {
   display: flex;
   gap: 20px;
   align-items: center;
-  margin-bottom: 30px;
+  margin: 30px 0;
   flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .admin-access-form label {
   font-weight: bold;
+  color: #3A3A98;
+  margin-right: 10px;
 }
 
 .admin-access-form select {
   padding: 6px 10px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 14px;
+
 }
 
 .admin-username-display {
@@ -35,6 +40,11 @@
   border-collapse: collapse;
 }
 
+.admin-access-table th{
+
+  color: #3A3A98;
+  background-color: #ddd;
+}
 .admin-access-table th,
 .admin-access-table td {
   padding: 12px;
@@ -42,16 +52,69 @@
   text-align: left;
 }
 
-.admin-access-table th {
-  background-color: #f4f4f4;
-}
 
 
-.mode-radio-group {
+.mode-check-group {
   display: flex;
   gap: 12px;
 }
 
-.mode-radio input[type="radio"] {
+.mode-check input[type="check"] {
   margin-right: 4px;
+}
+
+.admin-save-btn{
+  background-color: #3a3a98;
+  border-radius: 12px;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  height: 42px;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+
+}
+
+.admin-save-btn-div{
+
+  margin : 20px auto;
+  text-align:center;
+}
+
+.admin-user-details-box {
+
+  display: flex;
+    flex-direction: row;
+    gap: 20px;
+
+    strong{
+      color: #3A3A98;
+      margin-right: 6px;
+    }
+}
+
+
+.admin-access-table input[type="checkbox"]:checked {
+  accent-color: #3A3A98;
+}
+
+.admin-view-all{
+  color: #3A3A98;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.admin-tick-cross{
+  svg{
+
+    font-size: 18px;
+  }
+
+  .admin-tick{
+    color: green;
+  }
+  .admin-cross{
+    color: red;
+  }
 }
