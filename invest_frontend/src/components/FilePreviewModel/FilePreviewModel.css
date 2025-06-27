@@ -1,0 +1,34 @@
+.file-preview-modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.file-preview-modal {
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 800px;
+  position: relative;
+}
+
+.file-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.file-preview-content {
+  margin-top: 1rem;
+}
+
+.close-icon {
+  cursor: pointer;
+  font-size: 1.5rem;
+}

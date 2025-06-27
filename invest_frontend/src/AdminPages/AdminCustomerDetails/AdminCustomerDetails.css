@@ -206,10 +206,10 @@
   gap: 20px;
   justify-content: space-between;
 }
-
+/* 
 .admin-toggle-search-btn.kyc{
   margin-bottom: 20px ;
-}
+} */
 
 .pagination-controls {
   display: flex;
@@ -246,4 +246,5 @@
 
 .admin-search-toggle-container{
   margin-top: 16px;
+  margin-bottom: 16px;
 }

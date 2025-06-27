@@ -14,6 +14,11 @@ import AdminKYCDetails from './AdminPages/AdminKYCDetails/AdminKYCDetails';
 import AdminCustomerKYCMoreDetails from './AdminPages/AdminKYCDetails/AdminKYCMoreDetails';
 import AdminNomineeDetails from './AdminPages/AdminNomineeDetails/AdminNomineeDetails';
 import AdminNomineeMoreDetails from './AdminPages/AdminNomineeDetails/AdminNomineeMoreDetails';
+import RoleDashboard from './AdminPages/RoleDashboard/RoleDashboard';
+import RoleCustomerRegister from './AdminPages/RoleCustomerRegister/RoleCustomerRegister';
+import RoleCustomerMore from './AdminPages/RoleCustomerMore/RoleCustomerMore';
+import RoleKYCDetails from './AdminPages/RoleKYC/RoleKYC';
+import RoleNomineeDetails from './AdminPages/RoleNominee/RoleNominee';
 
 
 const AdminRoutes = () => {
@@ -38,7 +43,12 @@ const AdminRoutes = () => {
       <Route path="/admin-nominee-details" element={<AdminLayout><AdminNomineeDetails /></AdminLayout>} />
 
       <Route path="/admin/nominees/:id" element={<AdminLayout><AdminNomineeMoreDetails /></AdminLayout>} />
-
+      <Route path="/role-dashboard" element={<AdminLayout> <RoleDashboard /></AdminLayout>} />
+      <Route path="/role-customer-details" element={<AdminLayout><RoleCustomerRegister/></AdminLayout>} />
+      <Route path="/role-customer-more-details/" element={<AdminLayout><RoleCustomerMore/></AdminLayout>}/>
+      <Route path="/role-kyc-details" element={<AdminLayout><RoleKYCDetails/></AdminLayout>} />
+      <Route path="/role-nominee-details" element={<AdminLayout><RoleNomineeDetails/></AdminLayout>} />
+    
     </Routes>
 
   );

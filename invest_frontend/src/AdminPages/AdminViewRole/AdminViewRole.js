@@ -156,7 +156,7 @@ const ViewRole = () => {
   });
 
   const navigate = useNavigate();
-  const adminId = sessionStorage.getItem('admin_id') || 1;
+  const adminId = sessionStorage.getItem('admin_id');
 
   const fetchRoles = async () => {
     try {
