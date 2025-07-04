@@ -1,0 +1,304 @@
+.kyc-header {
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 40px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #3A3A98;
+    border-bottom: 1px solid #e6e6e6;
+    border-top: 1px solid #e6e6e6;
+    margin-top: 30px;
+
+}
+
+.kyc-content {
+    display: flex;
+    gap: 100px;
+}
+
+.kyc-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-left: 50px;
+}
+
+.kyc-step {
+    color: #3A3A98;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.kyc-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    /* border: 1px solid #999; */
+    /* border-radius: 12px; */
+
+}
+
+.kyc-label {
+    font-size: 18px;
+    color: #3A3A98;
+}
+
+.kyc-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #999;
+    border-radius: 6px;
+    background-color: white;
+    font-weight: 500;
+    margin: 16px 0;
+    box-sizing: border-box;
+    height: 48px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+.kyc-submit-btn {
+    width: 200px;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.kyc-stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.kyc-step-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.kyc-step-label{
+    font-size: 12px;
+}
+.kyc-step-circle {
+    width: 12px;
+    height: 12px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+/* Filled dot inside (radio-button style) */
+.kyc-step-wrapper.active .kyc-step-circle::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background-color: #3A3A98;
+    /* Active/completed inner fill */
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+
+/* Optional: border color updates for status */
+.kyc-step-wrapper.active .kyc-step-circle {
+    border-color: #3A3A98;
+}
+
+.kyc-step-wrapper.completed .kyc-step-circle {
+  border-color: #4CAF50;
+  background-color: #4CAF50;
+  position: relative;
+}
+
+.kyc-step-wrapper.completed .kyc-step-circle::after {
+  content: "✓";
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+.kyc-step-wrapper.disabled .kyc-step-circle {
+    border-color: #e0e0e0;
+}
+
+
+.kyc-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+    /* padding: 10px; */
+}
+
+
+
+.kyc-column-full {
+    width: 100%;
+}
+
+.kyc-radio-group {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    height: 48px;
+}
+
+.kyc-radio-group label {
+    font-weight: 500;
+    font-size: 16px;
+}
+
+.kyc-row.three-columns .kyc-column {
+  flex: 0 0 calc(33.333% - 13.33px);
+  max-width: calc(33.333% - 13.33px);
+}
+.signature-canvas {
+  width: 100%;
+  height: 150px;
+  border: 1px solid #ccc;
+  border-radius: 12px;
+}
+.signature-pad-wrapper {
+  margin: 20px auto;
+}
+.kyc-heading{
+    font-size: 20px;
+}
+
+.kyc-buttons-div{
+    display: flex;
+    gap: 10px;
+    margin: 10px;
+
+    button{
+    color: #3A3A98;
+    background: none;
+    border: 1px solid grey;
+    border-radius: 6px;
+}
+    
+}
+.hidden-file-input {
+  display: none;
+}
+
+.custom-file-upload {
+  background-color: #3A3A98;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 6px;
+  display: inline-block;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.custom-file-upload:hover {
+  background-color: #2e2e7d;
+}
+
+
+.custom-file-button {
+  display: inline-block;
+  background-color: #3a3a98;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  /* margin-top: 8px; */
+}
+
+.custom-file-button:hover {
+  background-color: #2e2e80;
+}
+
+.file-name-display {
+  /* margin-top: 8px; */
+  font-size: 12px;
+  color: #444;
+  font-style: italic;
+}
+
+
+.address-input{
+    /* width: 400px; */
+    justify-content: flex-start;
+}
+
+@media screen and (max-width: 992px) {
+    .kyc-content {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .kyc-stepper {
+        flex-direction: row
+    }
+
+    .kyc-input {
+        width: 100%;
+    }
+
+    .kyc-step-wrapper {
+        flex-direction: column;
+    }
+
+
+    .kyc-content {
+        margin: auto;
+    }
+
+    .kyc-row {
+        flex-direction: column;
+    }
+
+      .kyc-row:not(.three-columns):not(.two-columns) {
+    flex-direction: column;
+  }
+
+    .kyc-row.three-columns .kyc-column {
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+
+  .custom-file-button{
+        padding: 9px 7px;
+  }
+
+}
+
+@media (max-width: 425px) {
+
+    .kyc-input {
+        width: 100%;
+    }
+
+    .kyc-content {
+        margin: auto;
+        gap: 30px;
+    }
+
+    .kyc-stepper{
+        margin-left: 0;
+    }
+
+}

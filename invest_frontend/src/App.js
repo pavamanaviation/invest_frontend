@@ -7,9 +7,9 @@ import SignupPage from "./pages/Signup/Signup";
 import VerifyOtp from "./pages/VerifyOtp/VerifyOtp";
 import PostSignupPage from "./pages/PostSignupDetails/PostSignupDetails";
 import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
-import Kyc from "./pages/KYC/KYC";
 import Payment from "./pages/Payment/Payment";
 import AdminRoutes from "./AdminRoutes";
+import KYCPage from "./pages/KYC/KYC";
 
 function App() {
   return (
@@ -24,7 +24,7 @@ function App() {
         <Route path="/post-signup" element={<PostSignupPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-        <Route path="/user-kyc" element={<Kyc />} />
+        <Route path="/user-kyc" element={<KYCPage />} />
         <Route path="/payment" element={<Payment/>}/>
       </Routes>
 

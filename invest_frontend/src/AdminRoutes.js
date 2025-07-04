@@ -19,6 +19,8 @@ import RoleCustomerRegister from './AdminPages/RoleCustomerRegister/RoleCustomer
 import RoleCustomerMore from './AdminPages/RoleCustomerMore/RoleCustomerMore';
 import RoleKYCDetails from './AdminPages/RoleKYC/RoleKYC';
 import RoleNomineeDetails from './AdminPages/RoleNominee/RoleNominee';
+import AdminCustomerAllDetails from './AdminPages/AdminCustomerAllDetails/AdminCustomerAllDetails';
+import AdminCustomerAllMoreDetails from './AdminPages/AdminCustomerAllDetails/AdminCustomerAllMoreDetails';
 
 
 const AdminRoutes = () => {
@@ -48,7 +50,10 @@ const AdminRoutes = () => {
       <Route path="/role-customer-more-details/" element={<AdminLayout><RoleCustomerMore/></AdminLayout>}/>
       <Route path="/role-kyc-details" element={<AdminLayout><RoleKYCDetails/></AdminLayout>} />
       <Route path="/role-nominee-details" element={<AdminLayout><RoleNomineeDetails/></AdminLayout>} />
-    
+      <Route path="/admin-customer-more-details" element={<AdminLayout><AdminCustomerAllDetails/></AdminLayout>} />
+      <Route path="/admin-customer-more-all-details" element={<AdminLayout><AdminCustomerAllMoreDetails/></AdminLayout>} />
+
+
     </Routes>
 
   );

@@ -37,7 +37,6 @@ const CustomerDashboard = () => {
                 const res = await axios.post(
                     `${API_BASE_URL}/customer-profile`,
                     {
-                        customer_id,
                         action: "view",
                     },
                     { withCredentials: true }
@@ -239,7 +238,7 @@ const CustomerDashboard = () => {
                                 <button
                                     className="primary-button cd-button"
                                     onClick={handlePayment}
-                                    disabled={!kycCompleted || isFullPaymentDone}
+                                    // disabled={!kycCompleted || isFullPaymentDone}
                                 >
                                     {isFullPaymentDone ? "PaymentCompleted" : "Proceed to Payment"}
                                 </button>

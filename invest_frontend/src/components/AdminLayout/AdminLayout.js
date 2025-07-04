@@ -7,7 +7,6 @@ const AdminLayout = ({ children }) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get role details from sessionStorage (set at login)
   const roleId = sessionStorage.getItem('role_id');
   const roleType = sessionStorage.getItem('role_type'); // "admin", "employee", etc.
 
@@ -25,11 +24,15 @@ const AdminLayout = ({ children }) => {
       })
         .then((res) => res.json())
         .then((data) => {
-          if (data?.model_names) {
-            setModelNames(data.model_names);
+          if (data?.model_names && typeof data.model_names === 'object') {
+            const models = Object.keys(data.model_names); // convert keys to array
+            setModelNames(models);
+          } else {
+            setModelNames([]);
           }
           setIsLoading(false);
         })
+
         .catch((err) => {
           console.error('Error fetching model names:', err);
           setIsLoading(false);

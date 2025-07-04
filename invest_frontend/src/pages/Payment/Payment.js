@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Payment.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-import { createFullPaymentOrder, getPaymentStatus} from "../../apis/paymentApi";
+import { createFullPaymentOrder, getPaymentStatus } from "../../apis/paymentApi";
 
 const Payment = () => {
   const [selectedPayment, setSelectedPayment] = useState("");
@@ -17,54 +17,56 @@ const Payment = () => {
 
   const customer_id = sessionStorage.getItem("customer_id");
   const email = sessionStorage.getItem("customer_email");
-  const totalPrice = 1200000;
-const [fullPaymentAmount, setFullPaymentAmount] = useState("");
-const [fullPaymentError, setFullPaymentError] = useState("");
+  const [fullPaymentAmount, setFullPaymentAmount] = useState("");
+  const [fullPaymentError, setFullPaymentError] = useState("");
 
-const [paymentDone, setPaymentDone] = useState(false);
-const [isPaymentComplete, setIsPaymentComplete] = useState(false);
+  const [paymentDone, setPaymentDone] = useState(false);
+  const [isPaymentComplete, setIsPaymentComplete] = useState(false);
 
+  const [quantity, setQuantity] = useState(1);
+  const unitPrice = 1200000;
+  const totalPrice = unitPrice * quantity;
 
-useEffect(() => {
-  const fetchPaymentStatus = async () => {
-    try {
-      const response = await getPaymentStatus(customer_id); // Make sure this API hits `/payment-status-check`
-      if (response.completed) {
-        setIsPaymentComplete(true);
+  useEffect(() => {
+    const fetchPaymentStatus = async () => {
+      try {
+        const response = await getPaymentStatus(customer_id); // Make sure this API hits `/payment-status-check`
+        if (response.completed) {
+          setIsPaymentComplete(true);
+        }
+      } catch (error) {
+        console.error("Error fetching payment status:", error);
       }
-    } catch (error) {
-      console.error("Error fetching payment status:", error);
+    };
+
+    if (customer_id) {
+      fetchPaymentStatus();
     }
-  };
-
-  if (customer_id) {
-    fetchPaymentStatus();
-  }
-}, [customer_id]);
+  }, [customer_id]);
 
 
-const handleFullPayment = async () => {
-  try {
-    const status = await getPaymentStatus(customer_id);
-    if (status.completed) {
+  const handleFullPayment = async () => {
+    try {
+      const status = await getPaymentStatus(customer_id);
+      if (status.completed) {
+        setPopup({
+          isOpen: true,
+          message: "✅ Full payment of ₹12,00,000 has already been completed.",
+          type: "success",
+        });
+        return;
+      }
+
+      setSelectedPayment("full");
+      setShowPopup("full");
+    } catch (error) {
       setPopup({
         isOpen: true,
-        message: "✅ Full payment of ₹12,00,000 has already been completed.",
-        type: "success",
+        message: error.message || "Unable to verify payment status.",
+        type: "error",
       });
-      return;
     }
-
-    setSelectedPayment("full");
-    setShowPopup("full");
-  } catch (error) {
-    setPopup({
-      isOpen: true,
-      message: error.message || "Unable to verify payment status.",
-      type: "error",
-    });
-  }
-};
+  };
 
 
   const handleInstallmentPayment = () => {
@@ -78,101 +80,74 @@ const handleFullPayment = async () => {
     setInstallmentAmount("");
   };
 
-  // const handleProceedToPay = async () => {
-  //   try {
-  //     const response = await createFullPaymentOrder({ customer_id, email, price: totalPrice });
-  //     if (response.orders?.length) {
-  //       response.orders.forEach(order => {
-  //         const options = {
-  //           key: order.razorpay_key,
-  //           amount: order.amount * 100,
-  //           currency: order.currency,
-  //           name: "Pavaman Aviation",
-  //           description: `Drone Order - Part ${order.part_number}`,
-  //           order_id: order.order_id,
-  //           prefill: {
-  //             email: order.email,
-  //           },
-  //           handler: function (resp) {
-  //             setPopup({
-  //               isOpen: true,
-  //               message: `Part ${order.part_number} payment completed.`,
-  //               type: "success",
-  //             });
-  //           },
-  //           theme: {
-  //             color: "#3399cc",
-  //           },
-  //         };
+  const handleProceedToPay = async () => {
+    const totalAmount = unitPrice * quantity;
 
-  //         const rzp = new window.Razorpay(options);
-  //         rzp.open();
-  //       });
-  //     }
-  //   } catch (error) {
-  //     setPopup({
-  //       isOpen: true,
-  //       message: error?.message || "Payment failed",
-  //       type: "error",
-  //     });
-  //   } finally {
-  //     setShowPopup(false);
-  //   }
-  // };
+    try {
+      const response = await createFullPaymentOrder({
+        customer_id,
+        email,
+        price: totalAmount,
+        quantity,
+      });
 
-const handleProceedToPay = async () => {
-  const amount = parseInt(fullPaymentAmount);
+      if (!response.orders || response.orders.length === 0) {
+        setPopup({
+          isOpen: true,
+          message: "No orders returned. Cannot proceed.",
+          type: "error",
+        });
+        return;
+      }
 
-  if (!amount || amount < 100000) {
-    setFullPaymentError("Minimum payment must be ₹1,00,000.");
-    return;
-  }
+      // Sequentially process each order using Razorpay
+      for (const order of response.orders) {
+        await new Promise((resolve, reject) => {
+          const options = {
+            key: order.razorpay_key,
+            amount: order.amount * 100,
+            currency: order.currency,
+            name: "Pavaman Aviation",
+            description: `Drone Payment - Part ${order.part_number}`,
+            order_id: order.order_id,
+            prefill: { email: order.email },
+            handler: function () {
+              // Show success popup for each part
+              setPopup({
+                isOpen: true,
+                message: `Payment of ₹${order.amount.toLocaleString()} successful (Part ${order.part_number})`,
+                type: "success",
+              });
+              resolve(); // move to next payment
+            },
+            modal: {
+              ondismiss: function () {
+                setPopup({
+                  isOpen: true,
+                  message: `Payment cancelled (Part ${order.part_number}). Remaining payment halted.`,
+                  type: "error",
+                });
+                reject(); // exit remaining payment loop
+              },
+            },
+            theme: { color: "#3399cc" },
+          };
 
-  try {
-    const response = await createFullPaymentOrder({
-      customer_id,
-      email,
-      price: amount,
-    });
+          const rzp = new window.Razorpay(options);
+          rzp.open();
+        });
+      }
 
-    if (response.orders?.length) {
-      const order = response.orders[0];
-      const options = {
-        key: order.razorpay_key,
-        amount: order.amount * 100,
-        currency: order.currency,
-        name: "Pavaman Aviation",
-        description: `Drone Payment - Part ${order.part_number}`,
-        order_id: order.order_id,
-        prefill: { email: order.email },
-        handler: function () {
-          setPopup({
-            isOpen: true,
-            message: `Payment of ₹${amount.toLocaleString()} successful for Part ${order.part_number}`,
-            type: "success",
-          });
-          setFullPaymentAmount("");
-        },
-        theme: { color: "#3399cc" },
-      };
-      const rzp = new window.Razorpay(options);
-      rzp.open();
+    } catch (error) {
+      setPopup({
+        isOpen: true,
+        message: error?.error || "Payment failed.",
+        type: "error",
+      });
     }
-  } catch (error) {
-    if (
-      error?.error ===
-      "Full payment of ₹12L already completed."
-    ) {
-      setIsPaymentComplete(true);
-    }
+  };
 
-    setPopup({
-      isOpen: true,
-      message: error?.error || "Payment failed.",
-      type: "error",
-    });
-  }
-};
+
 
 
   const handleCancelInstallment = () => {
@@ -193,7 +168,7 @@ const handleProceedToPay = async () => {
       message: "Proceeding with installment payment of: ₹" + installmentAmount,
       type: "info",
     });
-    // TODO: Implement API logic for installment
+
   };
 
   return (
@@ -218,13 +193,36 @@ const handleProceedToPay = async () => {
             <tr>
               <td>2</td>
               <td>Number of Drones Applicable for Purchase</td>
-              <td>1</td>
+              <td>
+                <input
+                  type="text"
+                  min={1}
+                  max={10}
+                  value={quantity}
+                  onChange={(e) => {
+                    let val = parseInt(e.target.value) || 1;
+                    if (val > 10) val = 10;
+                    if (val < 1) val = 1;
+                    setQuantity(val);
+                  }}
+                  className="quantity-input"
+                />
+                {quantity === 10 && (
+                  <div className="quantity-warning" style={{ color: "red", fontSize: "12px" }}>
+                    Max limit is 10 drones
+                  </div>
+                )}
+              </td>
             </tr>
+
+
+
             <tr>
               <td>3</td>
               <td>Total Amount Payable (Rs)</td>
-              <td>₹12,00,000/-</td>
+              <td>₹{(quantity * unitPrice).toLocaleString("en-IN")}/-</td>
             </tr>
+
           </tbody>
         </table>
 
@@ -232,90 +230,52 @@ const handleProceedToPay = async () => {
           <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
         </div>
 
-        {/* <div className='payment-btns'>
+
+
+        <div className='payment-btns'>
           <button
             className='primary-button full-payment-btn'
             onClick={handleFullPayment}
-            disabled={selectedPayment === "installment"}
+            disabled={isPaymentComplete || selectedPayment === "installment"}
           >
             Full Payment
           </button>
           <button
             className='primary-button inst-payment-btn'
             onClick={handleInstallmentPayment}
-            disabled={selectedPayment === "full"}
+            disabled={isPaymentComplete || selectedPayment === "full"}
           >
             Installment Payment
           </button>
-        </div> */}
+        </div>
 
-
-<div className='payment-btns'>
-  <button
-    className='primary-button full-payment-btn'
-    onClick={handleFullPayment}
-    disabled={isPaymentComplete || selectedPayment === "installment"}
-  >
-    Full Payment
-  </button>
-  <button
-    className='primary-button inst-payment-btn'
-    onClick={handleInstallmentPayment}
-    disabled={isPaymentComplete || selectedPayment === "full"}
-  >
-    Installment Payment
-  </button>
-</div>
-
-        {/* Full Payment Popup */}
-        {/* {showPopup === "full" && (
+        {showPopup === "full" && (
           <div className="pay-popup-overlay">
             <div className="pay-popup-box">
-              <h3 className='pay-popup-header'>Confirm Full Payment</h3>
-              <p><strong>Number of Drones:</strong> 1</p>
-              <p><strong>Amount Payable:</strong> ₹12,00,000/-</p>
-              <div className="pay-popup-buttons">
-                <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
-                <button className="primary-button" onClick={handleProceedToPay}>Continue</button>
+              <h3 className="pay-popup-header">Confirm Full Payment</h3>
+
+              <div className="pay-popup-summary">
+                <p><strong>Number of Drones:</strong> {quantity}</p>
+                <p><strong>Total Amount Payable:</strong> ₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</p>
               </div>
+
+              <div className="pay-popup-buttons">
+                <button className="secondary-button" onClick={handleCancelPayment}>
+                  Cancel
+                </button>
+                <button className="primary-button" onClick={handleProceedToPay}>
+                  Proceed to Pay
+                </button>
+              </div>
+
+              {isPaymentComplete && (
+                <div className="payment-complete-msg">
+                  ✅ Full payment of ₹{(unitPrice * quantity).toLocaleString("en-IN")} has already been completed.
+                </div>
+              )}
             </div>
           </div>
-        )} */}
-{showPopup === "full" && (
-  <div className="pay-popup-overlay">
-    <div className="pay-popup-box">
-      <h3 className='pay-popup-header'>Pay Towards Full Amount</h3>
-      <p><strong>Total Amount:</strong> ₹12,00,000/-</p>
-      <div className="pay-popup-input-group">
-        <label>Enter Amount to Pay:</label>
-        <input
-          type="text"
-          value={fullPaymentAmount}
-          onChange={(e) => {
-            setFullPaymentAmount(e.target.value);
-            setFullPaymentError("");
-          }}
-          placeholder="Enter amount (Min ₹1,00,000)"
-          className="pay-popup-input"
-        />
-        {fullPaymentError && (
-          <p className="pay-popup-error">{fullPaymentError}</p>
         )}
-      </div>
-
-      <div className="pay-popup-buttons">
-        <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
-        <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
-      </div>
-
-      {isPaymentComplete && (
-        <div className="payment-complete-msg">
-          ✅ Full payment of ₹12,00,000 has already been completed.
-        </div>
-      )}
-    </div>
-  </div>
-)}
 
         {/* Installment Popup */}
         {showInstallmentPopup && (
