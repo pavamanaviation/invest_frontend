@@ -104,7 +104,8 @@
 
 .dropdown-menu a:hover,
 .dropdown-menu button:hover {
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */
+  font-weight: 600;
 }
 
 

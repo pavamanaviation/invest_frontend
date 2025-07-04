@@ -75,8 +75,8 @@ const AdminCustomerDetails = () => {
   }, [fetchCustomers]);
 
   const handleViewMore = (id) => navigate(`/admin/customers/${id}`);
-  const handleEdit = () => {};
-  const handleDelete = () => {};
+  const handleEdit = () => { };
+  const handleDelete = () => { };
 
   const handleSearch = () => {
     setIsSearchDone(true);
@@ -102,24 +102,24 @@ const AdminCustomerDetails = () => {
 
     return (
       <div className="pagination-controls">
-  <button
-    className="pagination-btn"
-    disabled={isPrevDisabled}
-    onClick={() => handlePageChange("prev")}
-  >
-    ⬅ Prev
-  </button>
-  <span className="pagination-page-info">
-    Page {Math.floor(offset / LIMIT) + 1} of {Math.ceil(totalCount / LIMIT)}
-  </span>
-  <button
-    className="pagination-btn"
-    disabled={isNextDisabled}
-    onClick={() => handlePageChange("next")}
-  >
-    Next ➡
-  </button>
-</div>
+        <button
+          className="pagination-btn"
+          disabled={isPrevDisabled}
+          onClick={() => handlePageChange("prev")}
+        >
+          ⬅ Prev
+        </button>
+        <span className="pagination-page-info">
+          Page {Math.floor(offset / LIMIT) + 1} of {Math.ceil(totalCount / LIMIT)}
+        </span>
+        <button
+          className="pagination-btn"
+          disabled={isNextDisabled}
+          onClick={() => handlePageChange("next")}
+        >
+          Next ➡
+        </button>
+      </div>
 
     );
   };
@@ -127,7 +127,7 @@ const AdminCustomerDetails = () => {
   return (
     <div className="admin-customer-container">
       <PopupMessage {...popup} onClose={() => setPopup({ ...popup, isOpen: false })} />
-      <div className="admin-customer-heading">Customer Details</div>
+      <div className="admin-customer-heading">Customer Register Details</div>
 
       <div className="admin-search-count-section">
         <div className="admin-search-toggle-container">
@@ -173,6 +173,8 @@ const AdminCustomerDetails = () => {
             <th>DOB</th>
             <th>Gender</th>
             <th>RegisterType</th>
+            <th>RegisterStatus</th>
+
             <th>AccountStatus</th>
             <th>Created on</th>
             <th>Action</th>
@@ -204,16 +206,25 @@ const AdminCustomerDetails = () => {
                 <td className="register-type-cell">
                   {customer.register_type === "google" ? <span className="register-icon google"><FcGoogle /></span> :
                     customer.register_type === "Email" ? <span className="register-icon email"><FiMail /></span> :
-                      customer.register_type === "phone" ? <span className="register-icon phone"><MdLocalPhone /></span> :
+                      customer.register_type === "Mobile" ? <span className="register-icon phone"><MdLocalPhone /></span> :
                         customer.register_type}
+                </td>
+                <td>
+                  <span className={`admin-status-badge ${customer.register_status === 1 ? "verified" : "not-verified"}`}>
+                    {customer.register_status === 1 ? <span className="status-icon verified">
+                      <IoCheckmarkOutline />
+                    </span> : <span className="status-icon not-verified">
+                      <HiMiniXMark />
+                    </span>}
+                  </span>
                 </td>
                 <td>
                   <span className={`admin-status-badge ${customer.account_status === 1 ? "verified" : "not-verified"}`}>
                     {customer.account_status === 1 ? <span className="status-icon verified">
-                                                <IoCheckmarkOutline />
-                                            </span> :   <span className="status-icon not-verified">
-                                                <HiMiniXMark />
-                                            </span>}
+                      <IoCheckmarkOutline />
+                    </span> : <span className="status-icon not-verified">
+                      <HiMiniXMark />
+                    </span>}
                   </span>
                 </td>
                 <td>{customer.created_at}</td>

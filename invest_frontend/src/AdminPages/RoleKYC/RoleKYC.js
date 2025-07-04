@@ -9,6 +9,8 @@ import {
 import { HiMiniXMark } from "react-icons/hi2";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import FilePreviewModal from "../../components/FilePreviewModel/FilePreviewModel";
+import { IoCheckmarkOutline } from "react-icons/io5";
+import { ImSpinner9 } from "react-icons/im";
 
 const RoleKYCDetails = () => {
   const [kycData, setKycData] = useState([]);
@@ -31,7 +33,7 @@ const RoleKYCDetails = () => {
 
       setKycData(data.data || []);
       setPermissions({
-        can_view: data.can_view,
+        can_view: data.can_view !== false,
         can_edit: data.can_edit,
         can_delete: data.can_delete,
       });
@@ -65,13 +67,14 @@ const RoleKYCDetails = () => {
     );
   };
 
-  const renderStatusIcon = (status) => {
-  return status === 1 ? (
-    <span className="admin-status-badge verified">✅</span>
-  ) : (
-    <span className="admin-status-badge not-verified">❌</span>
-  );
-};
+  const renderStatusIcon = (status, verifyStatus) => {
+    return status === 1 && verifyStatus === "completed" ? (
+      <span className="status-icon verified"><IoCheckmarkOutline/></span>
+    ) : (
+      <span className="status-icon not-verified kyc"><ImSpinner9/></span>
+    );
+  };
+
 
   return (
     <div className="role-kyc-details-container">
@@ -83,55 +86,53 @@ const RoleKYCDetails = () => {
       ) : (
         <>
           <table className="admin-customer-table">
-         <thead>
-  <tr>
-    <th>S.No</th>
-    <th>Customer ID</th>
-    <th>PAN Number</th>
-    <th>PAN File</th>
-    <th>PAN Status</th>
-    <th>Aadhar Number</th>
-    <th>Aadhar File</th>
-    <th>Aadhar Status</th>
-    <th>Bank Account</th>
-    <th>Bank Status</th>
-    <th>Created At</th>
-    <th>Action</th>
-  </tr>
-</thead>
-
+            <thead>
+              <tr>
+                <th>S.No</th>
+                <th>Customer Name</th>
+                <th>PAN Number</th>
+                <th>PAN Status</th>
+                <th>Aadhar Number</th>
+                <th>Aadhar Status</th>
+                <th>Bank Account</th>
+                <th>IFSC</th>
+                <th>Bank Name</th>
+                <th>Bank Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
             <tbody>
               {kycData.length === 0 ? (
                 <tr>
-                  <td colSpan="10" style={{ textAlign: "center" }}>
+                  <td colSpan="15" style={{ textAlign: "center" }}>
                     No KYC records found.
                   </td>
                 </tr>
               ) : (
                 kycData.map((item, idx) => (
-                <tr key={item.id}>
-  <td>{idx + 1}</td>
-  <td>{item.customer_id}</td>
-  <td>{item.pan_number}</td>
-  <td>{renderFileStatus(item.pan_status, item.pan_path)}</td>
-  <td>{renderStatusIcon(item.pan_status)}</td>
-  <td>{item.aadhar_number}</td>
-  <td>{renderFileStatus(item.aadhar_status, item.aadhar_path)}</td>
-  <td>{renderStatusIcon(item.aadhar_status)}</td>
-  <td>{item.banck_account_number}</td>
-  <td>{renderStatusIcon(item.bank_status)}</td>
-  <td>{item.created_at?.split("T")[0]}</td>
-  <td>
-    {permissions.can_view && <MdVisibility title="View" className="action-icon view-icon" />}
-    {permissions.can_edit && <MdModeEdit title="Edit" className="action-icon edit-icon" />}
-    {permissions.can_delete && <MdDelete title="Delete" className="action-icon delete-icon" />}
-    {!permissions.can_view && !permissions.can_edit && !permissions.can_delete && <span>–</span>}
-  </td>
-</tr>
-
+                  <tr key={idx}>
+                    <td>{idx + 1}</td>
+                    <td>{item.customer_name}</td>
+                    <td>{item.pan_verify_status === "completed" ? item.pan_number : "-"}</td>
+                    <td>{renderStatusIcon(item.pan_status, item.pan_verify_status)}</td>
+                    <td>{item.aadhar_verify_status === "completed" ? item.aadhar_number : "-"}</td>
+                    <td>{renderStatusIcon(item.aadhar_status, item.aadhar_verify_status)}</td>
+                    <td>{item.bank_account_number}</td>
+                    <td>{item.bank_ifsc_code}</td>
+                    <td>{item.bank_name}</td>
+                    <td>{renderStatusIcon(item.bank_status, item.bank_verify_status)}</td>
+                    <td>
+                      {permissions.can_view && <MdVisibility title="View" className="action-icon view-icon" />}
+                      {permissions.can_edit && <MdModeEdit title="Edit" className="action-icon edit-icon" />}
+                      {permissions.can_delete && <MdDelete title="Delete" className="action-icon delete-icon" />}
+                      {!permissions.can_view && !permissions.can_edit && !permissions.can_delete && <span>–</span>}
+                    </td>
+                  </tr>
                 ))
               )}
             </tbody>
+
+
           </table>
 
           {filePreview.isOpen && (

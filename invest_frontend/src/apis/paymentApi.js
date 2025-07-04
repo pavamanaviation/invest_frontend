@@ -1,11 +1,11 @@
 import axios from "axios";
 import API_BASE_URL from "../config";
 
-export const createFullPaymentOrder = async ({ customer_id, email, price }) => {
+export const createFullPaymentOrder = async ({ customer_id, email, price,quantity }) => {
   try {
     const response = await axios.post(
       `${API_BASE_URL}/create-drone-order`,
-      { customer_id, email, price },
+      { customer_id, email, price,quantity },
       {
         withCredentials: true,
         headers: {
