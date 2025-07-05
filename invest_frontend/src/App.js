@@ -10,6 +10,8 @@ import CustomerDashboard from "./pages/CustomerDashboard/CustomerDashboard";
 import Payment from "./pages/Payment/Payment";
 import AdminRoutes from "./AdminRoutes";
 import KYCPage from "./pages/KYC/KYC";
+import InvestPlanA from "./pages/InvestPlanA/InvestPlanA";
+import BankNomineeFormPage from "./pages/BankNomineeFormPage/BankNomineeFormPage";
 
 function App() {
   return (
@@ -26,6 +28,9 @@ function App() {
         <Route path="/customer-dashboard" element={<CustomerDashboard />} />
         <Route path="/user-kyc" element={<KYCPage />} />
         <Route path="/payment" element={<Payment/>}/>
+        <Route path="/plan-a-invest" element={<InvestPlanA/>}/>
+        <Route path="/bank-nominee" element={<BankNomineeFormPage/>}/>
+
       </Routes>
 
     </Router>

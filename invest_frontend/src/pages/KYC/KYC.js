@@ -166,7 +166,7 @@ const KYCPage = () => {
         }
 
         try {
-            const { status, data } = await verifyPanDocument(customerId, panFile);
+            const { status, data } = await verifyPanDocument( panFile);
 
             if (status === 200 && data.status === "success") {
                 setKycStatus(prev => ({ ...prev, pan: 1 }));
@@ -208,7 +208,7 @@ const KYCPage = () => {
         }
 
         try {
-            const { status, data } = await verifyAadharDocument(customerId, aadharFile);
+            const { status, data } = await verifyAadharDocument( aadharFile);
 
             if (status === 200 && data.status === "success") {
                 setKycStatus(prev => ({ ...prev, aadhar: 1 }));

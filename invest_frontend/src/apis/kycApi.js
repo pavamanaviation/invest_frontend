@@ -156,21 +156,21 @@ import API_BASE_URL from "../config";
 // };
 
 
-
-export const verifyPanDocument = async (customerId, panFile) => {
+export const verifyPanDocument = async (panFile) => {
     const formData = new FormData();
-    formData.append("customer_id", customerId);
     formData.append("pan_doc", panFile);
 
-    const response = await fetch(`${API_BASE_URL}/verify-pan`, {
-        method: "POST",
-        body: formData,
-    });
+    const response = await axios.post(
+        `${API_BASE_URL}/verify-pan`,
+        formData,
+        {
+            withCredentials: true, // ✅ Ensures session cookie is sent
+           
+        }
+    );
 
-    const data = await response.json();
-    return { status: response.status, data };
-};
-
+    return { status: response.status, data: response.data };
+}
 export const getPanSourceVerificationStatus = async (requestId, customerId) => {
     const url = `${API_BASE_URL}/get-pan-source-verification-status?request_id=${requestId}&customer_id=${customerId}`;
 
@@ -181,14 +181,21 @@ export const getPanSourceVerificationStatus = async (requestId, customerId) => {
 
 
 
-export const verifyAadharDocument = async (customerId, file) => {
+export const verifyAadharDocument = async (file) => {
   const formData = new FormData();
-  formData.append("customer_id", customerId);
   formData.append("aadhar_doc", file);
 
-  const response = await axios.post(`${API_BASE_URL}/verify-aadhar-document`, formData);
+  const response = await axios.post(
+    `${API_BASE_URL}/verify-aadhar-document`,
+    formData,
+    {
+      withCredentials: true, 
+    }
+  );
+
   return { status: response.status, data: response.data };
 };
+
 
 export const getAadharVerificationStatus = async (requestId, customerId) => {
   const response = await axios.get(`${API_BASE_URL}/get-aadhar-verification-status`, {

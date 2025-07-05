@@ -1,18 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import "./Payment.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import { createFullPaymentOrder, getPaymentStatus } from "../../apis/paymentApi";
+import API_BASE_URL from "../../../src/config";
+import axios from "axios";
 
 const Payment = () => {
-  const navigate = useNavigate();
   const [selectedPayment, setSelectedPayment] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const [popup, setPopup] = useState({
-    isOpen: false,
-    message: "",
-    type: "info",
-  });
+  const [popup, setPopup] = useState({ isOpen: false, message: "", type: "info" });
   const [showInstallmentPopup, setShowInstallmentPopup] = useState(false);
   const [installmentAmount, setInstallmentAmount] = useState("");
   const [installmentError, setInstallmentError] = useState("");
@@ -24,52 +20,62 @@ const Payment = () => {
 
   const [paymentDone, setPaymentDone] = useState(false);
   const [isPaymentComplete, setIsPaymentComplete] = useState(false);
-
+  const [latestOrderId, setLatestOrderId] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const unitPrice = 1200000;
   const totalPrice = unitPrice * quantity;
 
-  useEffect(() => {
-    const fetchPaymentStatus = async () => {
-      try {
-        const response = await getPaymentStatus(customer_id); // Make sure this API hits `/payment-status-check`
-        if (response.completed) {
-          setIsPaymentComplete(true);
-        }
-      } catch (error) {
-        console.error("Error fetching payment status:", error);
-      }
-    };
-
-    if (customer_id) {
-      fetchPaymentStatus();
-    }
-  }, [customer_id]);
-
-
-  const handleFullPayment = async () => {
+useEffect(() => {
+  const fetchLatestPaymentStatus = async () => {
     try {
-      const status = await getPaymentStatus(customer_id);
-      if (status.completed) {
-        setPopup({
-          isOpen: true,
-          message: "✅ Full payment of ₹12,00,000 has already been completed.",
-          type: "success",
-        });
-        return;
+      const res = await axios.post(
+        `${API_BASE_URL}/payment-status-check`,
+        {},
+        { withCredentials: true }
+      );
+
+      const data = res.data;
+
+      if (data.paid) {
+        setIsPaymentComplete(true);
+        setPopup({ isOpen: true, message: data.message, type: "success" });
+      } else {
+        setIsPaymentComplete(false);
+
+        if (data.payment_status === 0 && data.drone_order_id) {
+          await axios.post(
+            `${API_BASE_URL}/delete-cancelled-order`,
+            { drone_order_id: data.drone_order_id },
+            { withCredentials: true }
+          );
+          console.log("Cancelled order deleted");
+        }
       }
 
-      setSelectedPayment("full");
-      setShowPopup("full");
+      setLatestOrderId(data.drone_order_id);
     } catch (error) {
-      setPopup({
-        isOpen: true,
-        message: error.message || "Unable to verify payment status.",
-        type: "error",
-      });
+      console.error("Error checking payment status:", error);
     }
   };
 
+  if (customer_id) {
+    fetchLatestPaymentStatus();
+  }
+}, [customer_id]);
+
+
+
+  const handleFullPayment = async () => {
+    if (isPaymentComplete) {
+      setPopup({
+        isOpen: true,
+        message: "Previous order fully paid. You can now proceed with a new order.",
+        type: "success",
+      });
+    }
+    setSelectedPayment("full");
+    setShowPopup("full");
+  };
 
   const handleInstallmentPayment = () => {
     setSelectedPayment("installment");
@@ -81,9 +87,9 @@ const Payment = () => {
     setShowPopup(false);
     setInstallmentAmount("");
   };
+
   const handleProceedToPay = async () => {
     const totalAmount = unitPrice * quantity;
-
     try {
       const response = await createFullPaymentOrder({
         customer_id,
@@ -101,7 +107,6 @@ const Payment = () => {
         return;
       }
 
-      // Sequentially process each order using Razorpay
       for (const order of response.orders) {
         await new Promise((resolve, reject) => {
           const options = {
@@ -137,19 +142,6 @@ const Payment = () => {
           rzp.open();
         });
       }
-
-      // ✅ Final success popup after all parts are paid
-      setPopup({
-        isOpen: true,
-        message: `✅ Total payment of ₹${totalAmount.toLocaleString()} completed successfully! Redirecting to dashboard...`,
-        type: "success",
-      });
-
-      // Redirect to customer-dashboard after 3 seconds
-      setTimeout(() => {
-        navigate("/customer-dashboard");
-      }, 3000);
-
     } catch (error) {
       setPopup({
         isOpen: true,
@@ -158,8 +150,6 @@ const Payment = () => {
       });
     }
   };
-
-
 
   const handleCancelInstallment = () => {
     setSelectedPayment("");
@@ -172,14 +162,12 @@ const Payment = () => {
       setInstallmentError("Minimum installment amount must be ₹1,00,000.");
       return;
     }
-
     setInstallmentError("");
     setPopup({
       isOpen: true,
       message: "Proceeding with installment payment of: ₹" + installmentAmount,
       type: "info",
     });
-
   };
 
   return (
@@ -225,36 +213,37 @@ const Payment = () => {
                 )}
               </td>
             </tr>
-
-
-
             <tr>
               <td>3</td>
               <td>Total Amount Payable (Rs)</td>
               <td>₹{(quantity * unitPrice).toLocaleString("en-IN")}/-</td>
             </tr>
-
+            {isPaymentComplete && (
+              <tr>
+                <td colSpan={3} style={{ textAlign: "center", color: "green" }}>
+                   Previous Order ({latestOrderId}) payment is complete.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
 
-        <div className="payment-note">
+        <div className='payment-note'>
           <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
         </div>
-
-
 
         <div className='payment-btns'>
           <button
             className='primary-button full-payment-btn'
             onClick={handleFullPayment}
-            disabled={isPaymentComplete || selectedPayment === "installment"}
+            disabled={selectedPayment === "installment"}
           >
             Full Payment
           </button>
           <button
             className='primary-button inst-payment-btn'
             onClick={handleInstallmentPayment}
-            disabled={isPaymentComplete || selectedPayment === "full"}
+            disabled={selectedPayment === "full"}
           >
             Installment Payment
           </button>
@@ -264,36 +253,26 @@ const Payment = () => {
           <div className="pay-popup-overlay">
             <div className="pay-popup-box">
               <h3 className="pay-popup-header">Confirm Full Payment</h3>
-
               <div className="pay-popup-summary">
                 <p><strong>Number of Drones:</strong> {quantity}</p>
                 <p><strong>Total Amount Payable:</strong> ₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</p>
               </div>
-
               <div className="pay-popup-buttons">
-                <button className="secondary-button" onClick={handleCancelPayment}>
-                  Cancel
-                </button>
-                <button className="primary-button" onClick={handleProceedToPay}>
-                  Proceed to Pay
-                </button>
+                <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
+                <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
               </div>
-
-              {isPaymentComplete && (
-                <div className="payment-complete-msg">
-                  ✅ Full payment of ₹{(unitPrice * quantity).toLocaleString("en-IN")} has already been completed.
-                </div>
-              )}
             </div>
           </div>
         )}
 
-        {/* Installment Popup */}
         {showInstallmentPopup && (
           <div className="pay-popup-overlay">
             <div className="pay-popup-box">
               <h3 className='pay-popup-header'>Installment Payment</h3>
-              <p><strong>Total Amount:</strong> ₹12,00,000/-</p>
+              <div className="pay-popup-summary">
+                <p><strong>Number of Drones:</strong> {quantity}</p>
+                <p><strong>Total Amount Payable:</strong> ₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</p>
+              </div>
               <div className="pay-popup-input-group">
                 <label>Enter Amount to Pay:</label>
                 <input
@@ -310,7 +289,6 @@ const Payment = () => {
                   <p className="pay-popup-error">{installmentError}</p>
                 )}
               </div>
-
               <div className="payment-note">
                 <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
               </div>
