@@ -58,42 +58,30 @@ const CustomerDashboard = () => {
     }, [customer_id]);
 
     useEffect(() => {
-        const fetchAllStatuses = async () => {
-            const customer_id = sessionStorage.getItem("customer_id");
-            if (!customer_id) return;
-            setLoading(true);
+        const checkKYCCompleted = async () => {
             try {
-                const personalRes = await axios.post(`${API_BASE_URL}/customer-more-details`, { customer_id }, { withCredentials: true });
-                const panRes = await axios.post(`${API_BASE_URL}/verify-pan`, { customer_id }, { withCredentials: true });
-                const aadharRes = await axios.post(`${API_BASE_URL}/verify-aadhar-lite`, { customer_id }, { withCredentials: true });
-                const bankRes = await axios.post(`${API_BASE_URL}/verify-banck-account`, { customer_id }, { withCredentials: true });
-                const nomineeRes = await axios.post(`${API_BASE_URL}/nominee-details`, { customer_id }, { withCredentials: true });
-                const selfieRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "selfie" }, { withCredentials: true });
-                const signatureRes = await axios.post(`${API_BASE_URL}/upload-pdf-document`, { customer_id, doc_type: "signature" }, { withCredentials: true });
+                const res = await axios.post(
+                    `${API_BASE_URL}/completed-status`,
+                    {},
+                    { withCredentials: true }
+                );
 
-                const updatedStatus = {
-                    personal: personalRes.data.customer_readonly_info.personal_status,
-                    identity: panRes.data.pan_status === 1 && aadharRes.data.aadhar_status === 1 ? 1 : 0,
-                    bank: bankRes.data.bank_status === 1 ? 1 : 0,
-                    others: nomineeRes.data.nominee_status === 1 &&
-                        selfieRes.data.selfie_status === 1 &&
-                        signatureRes.data.signature_status === 1 ? 1 : 0,
-                };
-
-                setKycStatus(updatedStatus);
-
-                const isKycComplete = Object.values(updatedStatus).every(status => status === 1);
-                setKycCompleted(isKycComplete);
+                if (res.data.message === "All KYC details are completed.") {
+                    setKycCompleted(true);
+                } else {
+                    setKycCompleted(false);
+                }
             } catch (error) {
-                console.error("Failed to fetch KYC statuses", error);
-            }
-            finally {
-                setLoading(false); // Hide loader
+                console.error("Error checking KYC status:", error);
+            } finally {
+                setLoading(false);
             }
         };
 
-        fetchAllStatuses();
+        checkKYCCompleted();
     }, []);
+
+
 
 
 
@@ -220,14 +208,14 @@ const CustomerDashboard = () => {
                         {loading ? (
                             <div className="cd-loading">Loading KYC status...</div>
                         ) : (
-                            <>
-                                <button
-                                    className="primary-button cd-button"
-                                    onClick={handleKyc}
-                                    disabled={kycCompleted}
-                                >
-                                    {kycCompleted ? "KYC Completed" : "Complete KYC"}
-                                </button>
+                            <><button
+                                className="primary-button cd-button"
+                                onClick={handleKyc}
+                                disabled={kycCompleted}
+                            >
+                                {kycCompleted ? "KYC Completed" : "Complete KYC"}
+                            </button>
+
                                 {/* <button
                                     className="primary-button cd-button"
                                     onClick={handlePayment}
@@ -238,7 +226,7 @@ const CustomerDashboard = () => {
                                 <button
                                     className="primary-button cd-button"
                                     onClick={handlePayment}
-                                    // disabled={!kycCompleted || isFullPaymentDone}
+                                // disabled={!kycCompleted || isFullPaymentDone}
                                 >
                                     {isFullPaymentDone ? "PaymentCompleted" : "Proceed to Payment"}
                                 </button>
@@ -272,6 +260,15 @@ const CustomerDashboard = () => {
                                     ₹18,06,000<br />(Includes ₹1,56,000 residual value)
                                 </p>
                             </div>
+                            <div className="plan-section-btn">
+
+                            <button
+                                className="primary-button invest-button"
+                                // disabled={!kycCompleted}
+                            >
+                                Invest Now
+                            </button>
+                            </div>
                         </div>
 
                         <div className="plan-card">
@@ -290,6 +287,15 @@ const CustomerDashboard = () => {
                                 <p className="plan-text">
                                     ₹24,00,000<br />(Includes ₹1,56,000 residual value)
                                 </p>
+                            </div>
+                             <div className="plan-section-btn">
+
+                            <button
+                                className="primary-button invest-button"
+                                // disabled={!kycCompleted}
+                            >
+                                Invest Now
+                            </button>
                             </div>
                         </div>
                     </div>

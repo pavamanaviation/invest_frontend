@@ -10,7 +10,7 @@ const Header = () => {
     const navigate = useNavigate();
 
     const dropdownRef = useRef(null);
-const isLoggedIn = sessionStorage.getItem("is_logged_in") === "true";
+    const isLoggedIn = sessionStorage.getItem("is_logged_in") === "true";
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
@@ -53,8 +53,10 @@ const isLoggedIn = sessionStorage.getItem("is_logged_in") === "true";
                     <Link to="/home">Home</Link>
                     <Link to="/products">Our Products</Link>
                     <Link to="/about">About Us</Link>
-                    <Link to="/tools">Tools</Link>
                     <Link to="/services">Services</Link>
+                    <Link to="">My Payments</Link>
+                    <Link to="">Scheme Details</Link>
+
                 </nav>
 
                 <div className="login-buttons">
@@ -70,7 +72,9 @@ const isLoggedIn = sessionStorage.getItem("is_logged_in") === "true";
                             {showUserDropdown && (
                                 <div className="dropdown-menu">
                                     <Link to="/my-account">My Account</Link>
-                                    <Link to="/payment">Payment</Link>
+                                    <Link to="/payment">My Payments</Link>
+                                    <Link to="">Scheme Details</Link>
+
                                     <Link onClick={handleLogout}>Logout</Link>
                                 </div>
                             )}

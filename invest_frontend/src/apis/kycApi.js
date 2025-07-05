@@ -198,3 +198,31 @@ export const getAadharVerificationStatus = async (requestId, customerId) => {
 };
 
 
+export const getLocationByPincode = async (pincode) => {
+  try {
+    const response = await fetch(`https://api.postalpincode.in/pincode/${pincode}`);
+    const data = await response.json();
+
+    if (data[0].Status === "Success" && data[0].PostOffice.length > 0) {
+      const postOffice = data[0].PostOffice[0];
+      return {
+        city: postOffice.Name || "",
+        mandal: postOffice.Block || "",
+        district: postOffice.District || "",
+        state: postOffice.State || "",
+        country: postOffice.Country || "",
+      };
+    } else {
+      throw new Error("Invalid pincode or no data found.");
+    }
+  } catch (error) {
+    console.error("Failed to fetch location:", error);
+    throw error;
+  }
+};
+
+export const submitPersonalDetails = (details) => {
+  return axios.post(`${API_BASE_URL}/customer-more-details`, details, {
+    withCredentials: true,
+  });
+};

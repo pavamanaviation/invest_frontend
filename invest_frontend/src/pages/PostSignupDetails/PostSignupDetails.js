@@ -47,7 +47,7 @@ const PostSignupPage = () => {
         setLoading(true);
         
         try {
-            const formattedMobile = mobile.startsWith("+") ? mobile : `+${mobile}`;
+            const formattedMobile = mobile;
             const res = await postSignup({
                 token,
                 email: email || "",

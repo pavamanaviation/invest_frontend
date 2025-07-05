@@ -184,6 +184,11 @@ button:disabled {
     text-align: center;
 }
 
+.plan-section-btn{
+    align-items: center;
+    text-align: center;
+}
+
 @media screen and (max-width: 1024) {
     .cd-image-plans-section {
         flex-direction: column;
