@@ -226,7 +226,7 @@ const CustomerDashboard = () => {
                                 <button
                                     className="primary-button cd-button"
                                     onClick={handlePayment}
-                                // disabled={!kycCompleted || isFullPaymentDone}
+                                    // disabled={!kycCompleted || isFullPaymentDone}
                                 >
                                     {isFullPaymentDone ? "PaymentCompleted" : "Proceed to Payment"}
                                 </button>
@@ -264,7 +264,9 @@ const CustomerDashboard = () => {
 
                             <button
                                 className="primary-button invest-button"
-                                // disabled={!kycCompleted}
+                                onClick={() => navigate("/plan-a-invest")}
+
+                                disabled={!kycCompleted}
                             >
                                 Invest Now
                             </button>
@@ -292,7 +294,10 @@ const CustomerDashboard = () => {
 
                             <button
                                 className="primary-button invest-button"
-                                // disabled={!kycCompleted}
+                                onClick={() => navigate("/plan-b-invest")}
+
+                                disabled={!kycCompleted}
+
                             >
                                 Invest Now
                             </button>
