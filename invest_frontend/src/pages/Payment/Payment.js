@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import "./Payment.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import { createFullPaymentOrder, getPaymentStatus } from "../../apis/paymentApi";
 
 const Payment = () => {
+  const navigate = useNavigate();
   const [selectedPayment, setSelectedPayment] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [popup, setPopup] = useState({
@@ -79,7 +81,6 @@ const Payment = () => {
     setShowPopup(false);
     setInstallmentAmount("");
   };
-
   const handleProceedToPay = async () => {
     const totalAmount = unitPrice * quantity;
 
@@ -112,13 +113,12 @@ const Payment = () => {
             order_id: order.order_id,
             prefill: { email: order.email },
             handler: function () {
-              // Show success popup for each part
               setPopup({
                 isOpen: true,
                 message: `Payment of ₹${order.amount.toLocaleString()} successful (Part ${order.part_number})`,
                 type: "success",
               });
-              resolve(); // move to next payment
+              resolve();
             },
             modal: {
               ondismiss: function () {
@@ -127,7 +127,7 @@ const Payment = () => {
                   message: `Payment cancelled (Part ${order.part_number}). Remaining payment halted.`,
                   type: "error",
                 });
-                reject(); // exit remaining payment loop
+                reject();
               },
             },
             theme: { color: "#3399cc" },
@@ -138,6 +138,18 @@ const Payment = () => {
         });
       }
 
+      // ✅ Final success popup after all parts are paid
+      setPopup({
+        isOpen: true,
+        message: `✅ Total payment of ₹${totalAmount.toLocaleString()} completed successfully! Redirecting to dashboard...`,
+        type: "success",
+      });
+
+      // Redirect to customer-dashboard after 3 seconds
+      setTimeout(() => {
+        navigate("/customer-dashboard");
+      }, 3000);
+
     } catch (error) {
       setPopup({
         isOpen: true,
@@ -146,7 +158,6 @@ const Payment = () => {
       });
     }
   };
-
 
 
 

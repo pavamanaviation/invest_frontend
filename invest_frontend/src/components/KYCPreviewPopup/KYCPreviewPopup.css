@@ -1,0 +1,172 @@
+.kyc-preview-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.kyc-preview-form {
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  width: 95%;
+  max-width: 850px;
+  max-height: 92vh;
+  overflow-y: auto;
+  font-family: 'Segoe UI', sans-serif;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.kyc-preview-heading {
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #3a3a98;
+  text-transform: uppercase;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.kyc-grid-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  align-items: flex-start;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+
+.kyc-info {
+  flex: 1 1 60%;
+  min-width: 250px;
+}
+
+.kyc-info h3 {
+  font-size: 18px;
+  font-weight: 600;
+    color: #3a3a98;
+
+  margin-bottom: 12px;
+  text-decoration: underline;
+}
+
+.kyc-info p {
+  margin: 6px 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #333;
+}
+
+
+.kyc-info p strong {
+  display: inline-block;
+  width: 200px; /* Adjust as needed */
+}
+
+/* .kyc-info strong{
+  color: #3a3a98;
+
+} */
+.kyc-img-box {
+  flex: 1 1 35%;
+  min-width: 200px;
+  text-align: center;
+}
+
+.kyc-img-box.signature {
+    text-align: left;
+}
+
+.kyc-img-box label {
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.kyc-img-box img {
+  width: 100%;
+  max-width: 160px;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.kyc-preview-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 30px;
+
+  .secondary-button{
+    width: 150px;
+  }
+}
+
+
+/* .kyc-preview-buttons button { */
+  /* padding: 10px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.kyc-preview-buttons .primary-button {
+  background-color: #2f80ed;
+  color: #fff;
+}
+
+.kyc-preview-buttons button:not(.primary-button) {
+  background-color: #eee;
+  color: #333;
+} */
+
+/* 🔁 Responsive Styling for Small Devices */
+@media (max-width: 600px) {
+  .kyc-preview-form {
+    padding: 20px;
+  }
+
+  .kyc-preview-heading {
+    font-size: 20px;
+  }
+
+  .kyc-info h3 {
+    font-size: 16px;
+  }
+
+  .kyc-info p {
+    font-size: 14px;
+  }
+
+  .kyc-img-box {
+    text-align: left;
+  }
+
+  .kyc-img-box img {
+    max-width: 120px;
+  }
+
+  .kyc-preview-buttons {
+
+
+    .secondary-button{
+        width: 200px;
+    }
+  }
+
+  .kyc-preview-buttons button {
+    width: 200px;
+    text-align: center;
+  }
+}

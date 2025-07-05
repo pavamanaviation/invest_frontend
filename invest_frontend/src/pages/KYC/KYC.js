@@ -1,15 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaChevronRight } from "react-icons/fa";
 import SelfieCapture from "../../components/SelfieCapture/SelfieCapture";
 import "./KYC.css";
 import API_BASE_URL from "../../config";
-
+import { useNavigate } from "react-router-dom";
 import SignaturePad from "react-signature-canvas";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-import { verifyPanDocument, getPanSourceVerificationStatus, verifyAadharDocument, getAadharVerificationStatus } from "../../apis/kycApi";
-
+import KYCPreviewPopup from "../../components/KYCPreviewPopup/KYCPreviewPopup";
+import { verifyPanDocument, getPanSourceVerificationStatus, verifyAadharDocument, getAadharVerificationStatus, getLocationByPincode, submitPersonalDetails } from "../../apis/kycApi";
+import axios from "axios";
 
 const KYCPage = () => {
+    const navigate = useNavigate();
     const customerId = sessionStorage.getItem("customer_id");
     const [step, setStep] = useState("pan");
     const [kycStatus, setKycStatus] = useState({
@@ -48,99 +50,360 @@ const KYCPage = () => {
 
     const [mandal, setMandal] = useState("");
     const [profession, setProfession] = useState("");
-const handlePanUpload = async () => {
-    if (!panFile) {
-        setPopup({ isOpen: true, type: "error", message: "Please upload a PAN file" });
-        return;
-    }
+    const [district, setDistrict] = useState("");
+    const [state, setState] = useState("");
+    const [country, setCountry] = useState("");
+    const [city, setCity] = useState("");
 
-    try {
-        const { status, data } = await verifyPanDocument(customerId, panFile);
+    const [signFileName, setSignatureFileName] = useState("");
 
-        if (status === 200 && data.status === "success") {
-            setKycStatus(prev => ({ ...prev, pan: 1 }));
-            setStep("aadhar");
-            setPopup({ isOpen: true, type: "success", message: "PAN uploaded and verified!" });
-        } else if (status === 202 && data.status === "pending") {
-            setPopup({ isOpen: true, type: "info", message: "Verification in progress..." });
-            setTimeout(() => pollPanStatus(data.request_id), 3000);
-        } else {
-            throw new Error(data.error || "PAN verification failed");
+
+    // Add this useEffect at the top of your component
+    useEffect(() => {
+        const fetchCompletedStatus = async () => {
+            try {
+                const res = await axios.post(
+                    `${API_BASE_URL}/completed-status`,
+                    {},
+                    { withCredentials: true }
+                );
+
+                const {
+                    pan_status,
+                    aadhar_status,
+                    personal_status,
+                    selfie_status,
+                    signature_status,
+                } = res.data;
+
+                const statusObj = {
+                    pan: pan_status ? 1 : 0,
+                    aadhar: aadhar_status ? 1 : 0,
+                    personal: personal_status ? 1 : 0,
+                    others: (selfie_status && signature_status) ? 1 : 0,
+                };
+
+                setKycStatus(statusObj);
+
+                // Auto-skip to next incomplete step
+                if (!pan_status) setStep("pan");
+                else if (!aadhar_status) setStep("aadhar");
+                else if (!personal_status) setStep("personal");
+                else if (!selfie_status || !signature_status) setStep("others");
+            } catch (err) {
+                console.error("Error fetching KYC status:", err);
+            }
+        };
+
+        fetchCompletedStatus();
+    }, []);
+
+    useEffect(() => {
+        const fetchCustomerProfile = async () => {
+            try {
+                const res = await axios.post(`${API_BASE_URL}/customer-profile`, {
+                    action: "view",
+                }, { withCredentials: true });
+
+                const data = res.data;
+
+                setFirstName(data.full_name);
+                // setLastName(data.full_name?.split(" ")[1] || "");
+                setEmail(data.email || "");
+                setMobile(data.mobile_no || "");
+                setDob(data.dob || "");
+                setGender((data.gender || "").toLowerCase());
+            } catch (err) {
+                console.error("Failed to fetch customer profile:", err);
+            }
+        };
+
+        fetchCustomerProfile();
+    }, []);
+
+
+    useEffect(() => {
+        const fetchLocation = async () => {
+            if (pincode.length === 6) {
+                try {
+                    const location = await getLocationByPincode(pincode);
+                    console.log("Fetched location:", location);
+                    setLocationData({
+                        city: location.city || "",
+                        mandal: location.block || "", // ensure block goes into locationData.mandal
+                        district: location.district || "",
+                        state: location.state || "",
+                        country: location.country || "",
+                    });
+                    setCity(location.city || "");
+                    setDistrict(location.district || "");
+                    setState(location.state || "");
+                    setCountry(location.country || "");
+                    setMandal(location.block || "");
+
+                } catch (err) {
+                    setLocationData({
+                        city: "",
+                        mandal: "",
+                        district: "",
+                        state: "",
+                        country: ""
+                    });
+
+                    setCity(""); setDistrict(""); setState(""); setCountry(""); setMandal("");
+                }
+            }
+        };
+
+        fetchLocation();
+    }, [pincode]);
+
+
+    const handlePanUpload = async () => {
+        if (!panFile) {
+            setPopup({ isOpen: true, type: "error", message: "Please upload a PAN file" });
+            return;
         }
-    } catch (err) {
-        setPopup({ isOpen: true, type: "error", message: err.message });
-    }
-};
 
-const pollPanStatus = async (requestId) => {
-    try {
-        const { status, data } = await getPanSourceVerificationStatus(requestId, customerId);
+        try {
+            const { status, data } = await verifyPanDocument(customerId, panFile);
 
-        if (status === 200 && data.status === "verified") {
-            setKycStatus(prev => ({ ...prev, pan: 1 }));
-            setStep("aadhar");
-            setPopup({ isOpen: true, type: "success", message: "PAN verified!" });
-        } else if (status === 202) {
-            setTimeout(() => pollPanStatus(requestId), 3000);
-        } else {
-            setPopup({ isOpen: true, type: "error", message: data.message || "Verification failed" });
+            if (status === 200 && data.status === "success") {
+                setKycStatus(prev => ({ ...prev, pan: 1 }));
+                setStep("aadhar");
+                setPopup({ isOpen: true, type: "success", message: "PAN uploaded and verified!" });
+            } else if (status === 202 && data.status === "pending") {
+                setPopup({ isOpen: true, type: "info", message: "Verification in progress..." });
+                setTimeout(() => pollPanStatus(data.request_id), 3000);
+            } else {
+                throw new Error(data.error || "PAN verification failed");
+            }
+        } catch (err) {
+            setPopup({ isOpen: true, type: "error", message: err.message });
         }
-    } catch (err) {
-        setPopup({ isOpen: true, type: "error", message: err.message });
-    }
-};
-
-const handleAadharUpload = async () => {
-  if (!aadharFile) {
-    setPopup({ isOpen: true, type: "error", message: "Please upload Aadhaar file" });
-    return;
-  }
-
-  try {
-    const { status, data } = await verifyAadharDocument(customerId, aadharFile);
-
-    if (status === 200 && data.status === "success") {
-      setKycStatus(prev => ({ ...prev, aadhar: 1 }));
-      setStep("personal");
-      setPopup({ isOpen: true, type: "success", message: "Aadhaar verified successfully" });
-    } else if (status === 202) {
-      setPopup({ isOpen: true, type: "info", message: "Aadhaar verification in progress..." });
-      setTimeout(() => pollAadharStatus(data.request_id), 3000);
-    } else {
-      throw new Error(data.message || "Aadhaar verification failed");
-    }
-  } catch (err) {
-    setPopup({ isOpen: true, type: "error", message: err.message });
-  }
-};
-
-const pollAadharStatus = async (requestId) => {
-  try {
-    const { status, data } = await getAadharVerificationStatus(requestId, customerId);
-
-    if (status === 200 && data.status === "completed") {
-      setKycStatus(prev => ({ ...prev, aadhar: 1 }));
-      setStep("personal");
-      setPopup({ isOpen: true, type: "success", message: "Aadhaar verified!" });
-    } else if (status === 202) {
-      setTimeout(() => pollAadharStatus(requestId), 3000);
-    } else {
-      setPopup({ isOpen: true, type: "error", message: data.message || "Aadhaar verification failed" });
-    }
-  } catch (err) {
-    setPopup({ isOpen: true, type: "error", message: err.message });
-  }
-};
-
-    const handlePersonalSubmit = () => {
-        setKycStatus(prev => ({ ...prev, personal: 1 }));
-        setStep("others");
     };
 
-    const handleOthersSubmit = () => {
-        setKycStatus(prev => ({ ...prev, others: 1 }));
-        setPopup({ isOpen: true, message: "KYC Completed Successfully!", type: "success" });
+    const pollPanStatus = async (requestId) => {
+        try {
+            const { status, data } = await getPanSourceVerificationStatus(requestId, customerId);
+
+            if (status === 200 && data.status === "verified") {
+                setKycStatus(prev => ({ ...prev, pan: 1 }));
+                setStep("aadhar");
+                setPopup({ isOpen: true, type: "success", message: "PAN verified!" });
+            } else if (status === 202) {
+                setTimeout(() => pollPanStatus(requestId), 3000);
+            } else {
+                setPopup({ isOpen: true, type: "error", message: data.message || "Verification failed" });
+            }
+        } catch (err) {
+            setPopup({ isOpen: true, type: "error", message: err.message });
+        }
     };
+
+    const handleAadharUpload = async () => {
+        if (!aadharFile) {
+            setPopup({ isOpen: true, type: "error", message: "Please upload Aadhaar file" });
+            return;
+        }
+
+        try {
+            const { status, data } = await verifyAadharDocument(customerId, aadharFile);
+
+            if (status === 200 && data.status === "success") {
+                setKycStatus(prev => ({ ...prev, aadhar: 1 }));
+                setStep("personal");
+                setPopup({ isOpen: true, type: "success", message: "Aadhaar verified successfully" });
+            } else if (status === 202) {
+                setPopup({ isOpen: true, type: "info", message: "Aadhaar verification in progress..." });
+                setTimeout(() => pollAadharStatus(data.request_id), 3000);
+            } else {
+                throw new Error(data.message || "Aadhaar verification failed");
+            }
+        } catch (err) {
+            setPopup({ isOpen: true, type: "error", message: err.message });
+        }
+    };
+
+    const pollAadharStatus = async (requestId) => {
+        try {
+            const { status, data } = await getAadharVerificationStatus(requestId, customerId);
+
+            if (status === 200 && data.status === "completed") {
+                setKycStatus(prev => ({ ...prev, aadhar: 1 }));
+                setStep("personal");
+                setPopup({ isOpen: true, type: "success", message: "Aadhaar verified!" });
+            } else if (status === 202) {
+                setTimeout(() => pollAadharStatus(requestId), 3000);
+            } else {
+                setPopup({ isOpen: true, type: "error", message: data.message || "Aadhaar verification failed" });
+            }
+        } catch (err) {
+            setPopup({ isOpen: true, type: "error", message: err.message });
+        }
+    };
+
+    const handlePersonalSubmit = async () => {
+        try {
+            const payload = {
+                fullname: firstName,
+                mobile_no: mobile,
+                email: email,
+                dob: dob,
+                gender: gender,
+                profession: profession,
+                designation: designation,
+                company_name: companyName,
+                address: address,
+                pincode: pincode,
+                city: city,
+                mandal: mandal,
+                district: district,
+                state: state,
+                country: country,
+                address: address,
+            };
+
+            const res = await submitPersonalDetails(payload);
+
+            if (res.data?.action === "add_details") {
+                setKycStatus(prev => ({ ...prev, personal: 1 }));
+                setStep("others");
+            }
+
+            setPopup({ isOpen: true, message: res.data.message, type: "success" });
+        } catch (err) {
+            setPopup({
+                isOpen: true,
+                message: err?.response?.data?.error || "Submission failed",
+                type: "error",
+            });
+        }
+    };
+
+    const uploadSelfieToServer = async (imageDataUrl) => {
+        try {
+            const blob = await fetch(imageDataUrl).then(res => res.blob());
+            const selfieFile = new File([blob], "selfie.png", { type: "image/png" });
+
+            const formData = new FormData();
+            formData.append("customer_id", sessionStorage.getItem("customer_id"));
+            formData.append("doc_type", "selfie");
+            formData.append("kyc_file", selfieFile);
+
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+
+            if (response.data.status === "success") {
+                setPopup({ isOpen: true, message: "Selfie captured successfully.", type: "success" });
+            }
+        } catch (error) {
+            console.error("Selfie upload failed:", error);
+            setPopup({ isOpen: true, message: error || "Failed to upload ", type: "error" });
+
+        }
+    };
+
+
+    const sigPadRef = useRef();
+
+    const clearSignature = () => {
+        sigPadRef.current.clear();
+    };
+
+    const [signatureUploaded, setSignatureUploaded] = useState(false);
+    const saveSignature = async () => {
+        const dataUrl = sigPadRef.current.toDataURL(); // base64 image
+
+        try {
+            const blob = await fetch(dataUrl).then(res => res.blob());
+            const signatureFile = new File([blob], "signature.png", { type: "image/png" });
+
+            const formData = new FormData();
+            formData.append("customer_id", sessionStorage.getItem("customer_id"));
+            formData.append("doc_type", "signature");
+            formData.append("kyc_file", signatureFile);
+
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                withCredentials: true,
+            });
+
+            if (response.data.status === "success") {
+                setSignatureUploaded(true);
+                console.log("✅ Signature uploaded:", response.data);
+                setPopup({ isOpen: true, message: "Signature uploaded successfully.", type: "success" });
+
+            }
+
+        } catch (error) {
+            console.error(" Signature upload failed:", error);
+            setPopup({
+                isOpen: true,
+                message: error?.response?.data?.error || error.message || "Failed to upload signature.",
+                type: "error",
+            })
+
+        }
+    };
+
+    const handleSignatureFileUpload = async (file) => {
+        const formData = new FormData();
+        formData.append("customer_id", sessionStorage.getItem("customer_id"));
+        formData.append("doc_type", "signature");
+        formData.append("kyc_file", file);
+
+        try {
+            const response = await axios.post(`${API_BASE_URL}/upload-pdf-document`, formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true,
+            });
+
+            if (response.data.status === "success") {
+                setPopup({ isOpen: true, message: "Signature uploaded successfully.", type: "success" });
+            }
+        } catch (error) {
+            console.error(" Signature file upload failed:", error);
+            setPopup({
+                isOpen: true,
+                message: error?.response?.data?.error || error.message || "Failed to upload signature.",
+                type: "error",
+            });
+
+        }
+    };
+    const [previewData, setPreviewData] = useState(null);
+    const [showPreview, setShowPreview] = useState(false);
+
+
+    const handlesubmit = async () => {
+        try {
+            const response = await axios.post(`${API_BASE_URL}/preview-customer-details`, {}, {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            });
+
+            if (response.data && response.data.customer) {
+                setPreviewData(response.data);
+                setShowPreview(true);
+            }
+        } catch (error) {
+            setPopup({
+                isOpen: true,
+                message: error?.response?.data?.error || "Preview load failed.",
+                type: "error",
+            });
+        }
+    };
+
+
 
     const steps = [
         { key: "pan", label: "PAN Info" },
@@ -204,9 +467,9 @@ const pollAadharStatus = async (requestId) => {
                         </div>
                         <button
                             className="primary-button kyc-submit-btn"
-                            // onClick={handlePanUpload}
-                            onClick={setStep("aadhar")}
-                            disabled={!panFile}
+                            onClick={handlePanUpload}
+                            // onClick={setStep("aadhar")}
+                            disabled={!panFile || kycStatus.pan === 1}
                         >
                             Verify & Continue <FaChevronRight />
                         </button>
@@ -246,9 +509,9 @@ const pollAadharStatus = async (requestId) => {
                         </div>
                         <button
                             className="primary-button kyc-submit-btn"
-                            // onClick={handleAadharUpload}
+                            onClick={handleAadharUpload}
 
-                              onClick={      setStep("personal")}
+                            //   onClick={setStep("personal")}
 
 
                             disabled={!aadharFile}
@@ -264,26 +527,26 @@ const pollAadharStatus = async (requestId) => {
                         {/* Name Row */}
                         <div className="kyc-row">
                             <div className="kyc-column">
-                                <label className="kyc-label">First Name</label>
-                                <input className="kyc-input" type="text" placeholder="First Name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                                <label className="kyc-label">Full Name</label>
+                                <input className="kyc-input" type="text" placeholder="Full Name" value={firstName} disabled />
                             </div>
-                            <div className="kyc-column">
+                            {/* <div className="kyc-column">
                                 <label className="kyc-label">Last Name</label>
-                                <input className="kyc-input" type="text" placeholder="Last Name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                            </div>
+                                <input className="kyc-input" type="text" placeholder="Last Name" value={lastName} disabled />
+                            </div> */}
                         </div>
 
                         <div className="kyc-row">
                             <div className="kyc-column">
                                 <label className="kyc-label">Date of Birth</label>
-                                <input className="kyc-input" type="date" value={dob} onChange={(e) => setDob(e.target.value)} />
+                                <input className="kyc-input" type="date" value={dob} disabled />
 
                             </div>
                             <div className="kyc-column">
                                 <label className="kyc-label">Gender</label>
                                 <div className="kyc-radio-group">
-                                    <label><input type="radio" name="gender" value="male" checked={gender === "male"} onChange={(e) => setGender(e.target.value)} /> Male</label>
-                                    <label><input type="radio" name="gender" value="female" checked={gender === "female"} onChange={(e) => setGender(e.target.value)} /> Female</label>
+                                    <label><input type="radio" name="gender" value="male" checked={gender === "male"} disabled /> Male</label>
+                                    <label><input type="radio" name="gender" value="female" checked={gender === "female"} disabled /> Female</label>
                                 </div>
                             </div>
                         </div>
@@ -291,12 +554,12 @@ const pollAadharStatus = async (requestId) => {
                         <div className="kyc-row">
                             <div className="kyc-column">
                                 <label className="kyc-label">Mobile Number</label>
-                                <input className="kyc-input" type="text" placeholder="Mobile Number" value={mobile} onChange={(e) => setMobile(e.target.value)} />
+                                <input className="kyc-input" type="text" placeholder="Mobile Number" value={mobile} disabled />
 
                             </div>
                             <div className="kyc-column">
                                 <label className="kyc-label">Email</label>
-                                <input className="kyc-input" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                <input className="kyc-input" type="email" placeholder="Email" value={email} disabled />
                             </div>
                         </div>
                         {/* Profession Info */}
@@ -347,11 +610,18 @@ const pollAadharStatus = async (requestId) => {
                             </div>
                             <div className="kyc-column">
                                 <label className="kyc-label">City</label>
-                                <input className="kyc-input" type="text" placeholder="City" value={locationData.city} />
+                                <input className="kyc-input" type="text" placeholder="City" value={locationData.city} onChange={(e) => setPincode(e.target.value)} />
                             </div>
                             <div className="kyc-column">
                                 <label className="kyc-label">Mandal</label>
-                                <input className="kyc-input" type="text" placeholder="Mandal" value={locationData.mandal} onChange={(e) => setMandal(e.target.value)} />
+                                <input
+                                    className="kyc-input"
+                                    type="text"
+                                    placeholder="Mandal"
+                                    value={mandal}
+                                    onChange={(e) => setMandal(e.target.value)}
+                                />
+
                                 {/* <input className="kyc-input" type="text" placeholder="Mandal" value={mandal} onChange={(e) => setMandal(e.target.value)} /> */}
 
                             </div>
@@ -378,10 +648,9 @@ const pollAadharStatus = async (requestId) => {
                                 <textarea className="kyc-input" placeholder="(Flatno./ Hno./ Street)" value={address} onChange={(e) => setAddress(e.target.value)} />
                             </div>
                         </div>
-                        ``
 
                         {/* Next Step Button */}
-                        <button className="primary-button kyc-submit-btn" onClick={handlePersonalSubmit()}>
+                        <button className="primary-button kyc-submit-btn" onClick={handlePersonalSubmit}>
                             Verify and Proceed <FaChevronRight />
                         </button>
 
@@ -391,17 +660,53 @@ const pollAadharStatus = async (requestId) => {
                 {/* Step: Others */}
                 {step === "others" && (
                     <div className="kyc-form-section">
-                        {/* Nominee Info, Selfie, Signature Pad */}
-                        <SelfieCapture onCapture={() => { }} />
-                        <SignaturePad canvasProps={{ className: "signature-canvas" }} />
-                        <button
-                            className="primary-button kyc-submit-btn"
-                            onClick={handleOthersSubmit}
-                        >
-                            Submit KYC
+                        <SelfieCapture onCapture={uploadSelfieToServer} />
+
+                        <div className="kyc-row">
+                            <div className="kyc-column">
+                                <label className="kyc-label">Upload Signature</label>
+
+                                <input
+                                    type="file"
+                                    id="signature"
+                                    accept="image/*,application/pdf"
+                                    style={{ display: "none" }}
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setSignatureFileName(file.name);
+                                            handleSignatureFileUpload(file);
+                                        }
+                                    }}
+                                />
+
+                                <div className="kyc-input address-input">
+                                    <label htmlFor="signature" className="custom-file-button">Choose File</label>
+                                    {signFileName && <div className="file-name-display">{signFileName}</div>}
+                                </div>
+                            </div>
+                        </div>
+
+                        <p>OR</p>
+
+                        <label className="kyc-label">Sign Here</label>
+                        <div className="signature-pad-wrapper">
+                            <SignaturePad
+                                ref={sigPadRef}
+                                canvasProps={{ className: "signature-canvas" }}
+                            />
+                            <div className="kyc-buttons-div">
+                                <button type="button" onClick={clearSignature}>Clear</button>
+                                <button type="button" onClick={saveSignature}>Save</button>
+                            </div>
+                        </div>
+
+                        <button className="primary-button kyc-submit-btn" onClick={handlesubmit}>
+                            Submit
                         </button>
                     </div>
                 )}
+
             </div>
 
             <PopupMessage
@@ -410,6 +715,16 @@ const pollAadharStatus = async (requestId) => {
                 type={popup.type}
                 onClose={() => setPopup({ ...popup, isOpen: false })}
             />
+
+            {showPreview && previewData && (
+                <KYCPreviewPopup
+                    data={previewData}
+                    onClose={() => setShowPreview(false)}
+                    onConfirm={() => navigate("/customer-dashboard")}
+                />
+            )}
+
+
         </div>
     );
 };
