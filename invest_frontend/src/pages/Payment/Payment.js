@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import "./Payment.css";
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-import { createFullPaymentOrder, getPaymentStatus } from "../../apis/paymentApi";
+import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder } from "../../apis/paymentApi";
 import API_BASE_URL from "../../../src/config";
 import axios from "axios";
 
@@ -15,15 +15,10 @@ const Payment = () => {
 
   const customer_id = sessionStorage.getItem("customer_id");
   const email = sessionStorage.getItem("customer_email");
-  const [fullPaymentAmount, setFullPaymentAmount] = useState("");
-  const [fullPaymentError, setFullPaymentError] = useState("");
-
-  const [paymentDone, setPaymentDone] = useState(false);
   const [isPaymentComplete, setIsPaymentComplete] = useState(false);
   const [latestOrderId, setLatestOrderId] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const unitPrice = 1200000;
-  const totalPrice = unitPrice * quantity;
 
 useEffect(() => {
   const fetchLatestPaymentStatus = async () => {
@@ -157,18 +152,69 @@ useEffect(() => {
     setInstallmentAmount("");
   };
 
-  const handleProceedInstallment = () => {
-    if (!installmentAmount || parseInt(installmentAmount) < 100000) {
-      setInstallmentError("Minimum installment amount must be ₹1,00,000.");
-      return;
-    }
-    setInstallmentError("");
-    setPopup({
-      isOpen: true,
-      message: "Proceeding with installment payment of: ₹" + installmentAmount,
-      type: "info",
+const handleProceedInstallment = async () => {
+  const amount = parseFloat(installmentAmount);
+
+  if (!amount || amount < 100000) {
+    setInstallmentError("Minimum installment amount must be ₹1,00,000.");
+    return;
+  }
+
+  try {
+    const data = await createInstallmentPaymentOrder({
+      email,
+      quantity,
+      installment_amount: amount,
+      total_price: unitPrice * quantity,
     });
-  };
+
+    const order = data.order;
+
+    if (window.Razorpay) {
+      const options = {
+        key: order.razorpay_key,
+        amount: order.amount * 100,
+        currency: order.currency,
+        name: "Pavaman Aviation Pvt Ltd",
+        description: "Drone Installment Payment",
+        order_id: order.razorepay_order_id,
+        prefill: { email: order.email },
+        notes: {
+          drone_order_id: data.drone_order_id,
+          part: data.installment_number,
+        },
+        handler: function () {
+          setPopup({
+            isOpen: true,
+            message: `Installment payment of ₹${order.amount.toLocaleString()} successful.`,
+            type: "success",
+          });
+          setShowInstallmentPopup(false);
+          setInstallmentAmount("");
+        },
+        modal: {
+          ondismiss: function () {
+            setPopup({
+              isOpen: true,
+              message: `Installment payment cancelled.`,
+              type: "error",
+            });
+          },
+        },
+        theme: { color: "#1976d2" },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } else {
+      setInstallmentError("Razorpay SDK not loaded.");
+    }
+  } catch (error) {
+    const errMsg = error?.response?.data?.error || "Failed to create installment order.";
+    setInstallmentError(errMsg);
+  }
+};
+
 
   return (
     <div className='payment-section container'>
@@ -299,6 +345,7 @@ useEffect(() => {
             </div>
           </div>
         )}
+
 
         <PopupMessage
           isOpen={popup.isOpen}
