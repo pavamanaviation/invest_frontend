@@ -139,26 +139,29 @@ const CustomerDashboard = () => {
         }
     };
 
-    const [isFullPaymentDone, setIsFullPaymentDone] = useState(false);
+    // const [isFullPaymentDone, setIsFullPaymentDone] = useState(false);
 
-    useEffect(() => {
-        const checkPaymentStatus = async () => {
-            try {
-                const res = await axios.get(`${API_BASE_URL}/payment-status-check`, {
-                    params: { customer_id },
-                    withCredentials: true,
-                });
+    // useEffect(() => {
+    //     const checkPaymentStatus = async () => {
+    //         try {
+    //             const res = await axios.get(`${API_BASE_URL}/payment-status-check`, 
+    //                   {},
+    //                   {
 
-                if (res.data.completed) {
-                    setIsFullPaymentDone(true);
-                }
-            } catch (err) {
-                console.error("Error checking payment status:", err);
-            }
-        };
+    //                       withCredentials: true,
+    //                   }
+    //             );
 
-        if (customer_id) checkPaymentStatus();
-    }, [customer_id]);
+    //             if (res.data.completed) {
+    //                 setIsFullPaymentDone(true);
+    //             }
+    //         } catch (err) {
+    //             console.error("Error checking payment status:", err);
+    //         }
+    //     };
+
+    //     if (customer_id) checkPaymentStatus();
+    // }, [customer_id]);
 
     const handlePaymentAcceptAndProceed = async () => {
         try {
@@ -216,19 +219,12 @@ const CustomerDashboard = () => {
                                 {kycCompleted ? "KYC Completed" : "Complete KYC"}
                             </button>
 
-                                {/* <button
-                                    className="primary-button cd-button"
-                                    onClick={handlePayment}
-                                    disabled={!kycCompleted}
-                                >
-                                    Proceed to Payment
-                                </button> */}
                                 <button
                                     className="primary-button cd-button"
                                     onClick={handlePayment}
-                                    // disabled={!kycCompleted || isFullPaymentDone}
+                                    // disabled={!kycCompleted}
                                 >
-                                    {isFullPaymentDone ? "PaymentCompleted" : "Proceed to Payment"}
+                                     Proceed to Payment
                                 </button>
 
                             </>
