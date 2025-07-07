@@ -1,7 +1,14 @@
 import React from "react";
+import { useNavigate } from "react-router-dom"
 import "./InvestPlanA.css";
+import BankNomineeFormPage from "../BankNomineeFormPage/BankNomineeFormPage";
 
 const InvestPlanA = () => {
+       const navigate = useNavigate();
+      const handleInvestClick = () => {
+        navigate("/bank-nominee");
+    };
+
     return (
         <div className="invest-plan-container">
             <h1 className="invest-title">PAVAMAN DRONE LEASE SCHEME – Plan A</h1>
@@ -41,7 +48,7 @@ const InvestPlanA = () => {
             </div>
 
             <div className="invest-action">
-                <button className="primary-button">Invest Now</button>
+                <button className="primary-button"  onClick={handleInvestClick}>Invest Now</button>
             </div>
         </div>
     );

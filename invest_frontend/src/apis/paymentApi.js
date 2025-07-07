@@ -30,3 +30,15 @@ export const getPaymentStatus = async (customer_id) => {
     throw error.response?.data || { message: "Failed to check payment status." };
   }
 };
+
+export const createInstallmentPaymentOrder = async ({ email, quantity, installment_amount, total_price }) => {
+  try { const response = await axios.post(
+    `${API_BASE_URL}/create-drone-installment-order`,
+    { email, quantity, installment_amount, total_price },
+    { withCredentials: true }
+  );
+  return response.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Order creation failed." };
+  }
+};
