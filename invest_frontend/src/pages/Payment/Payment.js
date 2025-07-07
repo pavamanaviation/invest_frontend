@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import "./Payment.css";
+import { useNavigate } from 'react-router-dom';
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
 import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder } from "../../apis/paymentApi";
 import API_BASE_URL from "../../../src/config";
 import axios from "axios";
 
 const Payment = () => {
+  const navigate = useNavigate();
   const [selectedPayment, setSelectedPayment] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [popup, setPopup] = useState({ isOpen: false, message: "", type: "info" });
@@ -19,6 +21,9 @@ const Payment = () => {
   const [latestOrderId, setLatestOrderId] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const unitPrice = 1200000;
+const [remainingAmount, setRemainingAmount] = useState(null);
+const [dueDate, setDueDate] = useState(null);
+const [daysLeft, setDaysLeft] = useState(null);
 
 useEffect(() => {
   const fetchLatestPaymentStatus = async () => {
@@ -30,10 +35,20 @@ useEffect(() => {
       );
 
       const data = res.data;
+      const justPaid = sessionStorage.getItem("just_paid") === "true";
 
       if (data.paid) {
         setIsPaymentComplete(true);
-        setPopup({ isOpen: true, message: data.message, type: "success" });
+        if (justPaid) {
+          setPopup({
+            isOpen: true,
+            message: data.message,
+            type: "success",
+          });
+
+          // Clear the flag so it doesn’t show again
+          sessionStorage.removeItem("just_paid");
+        }
       } else {
         setIsPaymentComplete(false);
 
@@ -102,6 +117,9 @@ useEffect(() => {
         return;
       }
 
+      let totalPaid = 0;
+      const totalParts = response.orders.length;
+
       for (const order of response.orders) {
         await new Promise((resolve, reject) => {
           const options = {
@@ -113,11 +131,7 @@ useEffect(() => {
             order_id: order.order_id,
             prefill: { email: order.email },
             handler: function () {
-              setPopup({
-                isOpen: true,
-                message: `Payment of ₹${order.amount.toLocaleString()} successful (Part ${order.part_number})`,
-                type: "success",
-              });
+              totalPaid += order.amount;
               resolve();
             },
             modal: {
@@ -137,6 +151,18 @@ useEffect(() => {
           rzp.open();
         });
       }
+
+      setPopup({
+        isOpen: true,
+        message: ` Full payment of ₹${totalPaid.toLocaleString()} completed in ${totalParts} part(s). Redirecting to Dashboard...`,
+        type: "success",
+      });
+
+      sessionStorage.setItem("just_paid", "true");
+
+      setTimeout(() => {
+        navigate("/customer-dashboard");
+      }, 2500);
     } catch (error) {
       setPopup({
         isOpen: true,
@@ -152,68 +178,68 @@ useEffect(() => {
     setInstallmentAmount("");
   };
 
-const handleProceedInstallment = async () => {
-  const amount = parseFloat(installmentAmount);
+  const handleProceedInstallment = async () => {
+    const amount = parseFloat(installmentAmount);
 
-  if (!amount || amount < 100000) {
-    setInstallmentError("Minimum installment amount must be ₹1,00,000.");
-    return;
-  }
+    if (!amount || amount < 100000) {
+      setInstallmentError("Minimum installment amount must be ₹1,00,000.");
+      return;
+    }
 
-  try {
-    const data = await createInstallmentPaymentOrder({
-      email,
-      quantity,
-      installment_amount: amount,
-      total_price: unitPrice * quantity,
-    });
+    try {
+      const data = await createInstallmentPaymentOrder({
+        email,
+        quantity,
+        installment_amount: amount,
+        total_price: unitPrice * quantity,
+      });
 
-    const order = data.order;
+      const order = data.order;
 
-    if (window.Razorpay) {
-      const options = {
-        key: order.razorpay_key,
-        amount: order.amount * 100,
-        currency: order.currency,
-        name: "Pavaman Aviation Pvt Ltd",
-        description: "Drone Installment Payment",
-        order_id: order.razorepay_order_id,
-        prefill: { email: order.email },
-        notes: {
-          drone_order_id: data.drone_order_id,
-          part: data.installment_number,
-        },
-        handler: function () {
-          setPopup({
-            isOpen: true,
-            message: `Installment payment of ₹${order.amount.toLocaleString()} successful.`,
-            type: "success",
-          });
-          setShowInstallmentPopup(false);
-          setInstallmentAmount("");
-        },
-        modal: {
-          ondismiss: function () {
+      if (window.Razorpay) {
+        const options = {
+          key: order.razorpay_key,
+          amount: order.amount * 100,
+          currency: order.currency,
+          name: "Pavaman Aviation Pvt Ltd",
+          description: "Drone Installment Payment",
+          order_id: order.razorepay_order_id,
+          prefill: { email: order.email },
+          notes: {
+            drone_order_id: data.drone_order_id,
+            part: data.installment_number,
+          },
+          handler: function () {
             setPopup({
               isOpen: true,
-              message: `Installment payment cancelled.`,
-              type: "error",
+              message: `Installment payment of ₹${order.amount.toLocaleString()} successful.`,
+              type: "success",
             });
+            setShowInstallmentPopup(false);
+            setInstallmentAmount("");
           },
-        },
-        theme: { color: "#1976d2" },
-      };
+          modal: {
+            ondismiss: function () {
+              setPopup({
+                isOpen: true,
+                message: `Installment payment cancelled.`,
+                type: "error",
+              });
+            },
+          },
+          theme: { color: "#1976d2" },
+        };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } else {
-      setInstallmentError("Razorpay SDK not loaded.");
+        const rzp = new window.Razorpay(options);
+        rzp.open();
+      } else {
+        setInstallmentError("Razorpay SDK not loaded.");
+      }
+    } catch (error) {
+      const errMsg = error?.response?.data?.error || "Failed to create installment order.";
+      setInstallmentError(errMsg);
     }
-  } catch (error) {
-    const errMsg = error?.response?.data?.error || "Failed to create installment order.";
-    setInstallmentError(errMsg);
-  }
-};
+  };
 
 
   return (
@@ -267,7 +293,7 @@ const handleProceedInstallment = async () => {
             {isPaymentComplete && (
               <tr>
                 <td colSpan={3} style={{ textAlign: "center", color: "green" }}>
-                   Previous Order ({latestOrderId}) payment is complete.
+                  Previous Order ({latestOrderId}) payment is complete.
                 </td>
               </tr>
             )}
