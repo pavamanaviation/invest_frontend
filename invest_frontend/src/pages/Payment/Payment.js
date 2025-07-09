@@ -21,57 +21,50 @@ const Payment = () => {
   const [latestOrderId, setLatestOrderId] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const unitPrice = 1200000;
-const [remainingAmount, setRemainingAmount] = useState(null);
-const [dueDate, setDueDate] = useState(null);
-const [daysLeft, setDaysLeft] = useState(null);
+  const [remainingAmount, setRemainingAmount] = useState(null);
+  const [dueDate, setDueDate] = useState(null);
+  const [daysLeft, setDaysLeft] = useState(null);
 
-useEffect(() => {
-  const fetchLatestPaymentStatus = async () => {
-    try {
-      const res = await axios.post(
-        `${API_BASE_URL}/payment-status-check`,
-        {},
-        { withCredentials: true }
-      );
+  useEffect(() => {
+    const fetchLatestPaymentStatus = async () => {
+      try {
+        const res = await axios.post(
+          `${API_BASE_URL}/payment-status-check`,
+          {},
+          { withCredentials: true }
+        );
 
-      const data = res.data;
-      const justPaid = sessionStorage.getItem("just_paid") === "true";
+        const data = res.data;
+        const justPaid = sessionStorage.getItem("just_paid") === "true";
 
-      if (data.paid) {
-        setIsPaymentComplete(true);
-        if (justPaid) {
-          setPopup({
-            isOpen: true,
-            message: data.message,
-            type: "success",
-          });
+        if (data.paid) {
+          setIsPaymentComplete(true);
+          if (justPaid) {
+            setPopup({
+              isOpen: true,
+              message: data.message,
+              type: "success",
+            });
 
-          // Clear the flag so it doesn’t show again
-          sessionStorage.removeItem("just_paid");
+            // Clear the flag so it doesn’t show again
+            sessionStorage.removeItem("just_paid");
+          }
+        } else {
+          setIsPaymentComplete(false);
+
+
         }
-      } else {
-        setIsPaymentComplete(false);
 
-        if (data.payment_status === 0 && data.drone_order_id) {
-          await axios.post(
-            `${API_BASE_URL}/delete-cancelled-order`,
-            { drone_order_id: data.drone_order_id },
-            { withCredentials: true }
-          );
-          console.log("Cancelled order deleted");
-        }
+        setLatestOrderId(data.drone_order_id);
+      } catch (error) {
+        console.error("Error checking payment status:", error);
       }
+    };
 
-      setLatestOrderId(data.drone_order_id);
-    } catch (error) {
-      console.error("Error checking payment status:", error);
+    if (customer_id) {
+      fetchLatestPaymentStatus();
     }
-  };
-
-  if (customer_id) {
-    fetchLatestPaymentStatus();
-  }
-}, [customer_id]);
+  }, [customer_id]);
 
 
 
@@ -87,10 +80,33 @@ useEffect(() => {
     setShowPopup("full");
   };
 
-  const handleInstallmentPayment = () => {
+  const handleInstallmentPayment = async () => {
     setSelectedPayment("installment");
     setShowInstallmentPopup(true);
+
+    try {
+      const res = await axios.post(
+        `${API_BASE_URL}/payment-status-check`,
+        { payment_type: "installment" },
+        { withCredentials: true }
+      );
+
+      const { total_amount, paid_amount, remaining_amount, days_left } = res.data;
+
+      const summary = {
+        total_amount: parseFloat(total_amount || 0),
+        total_paid: parseFloat(paid_amount || 0),
+        remaining: parseFloat(remaining_amount || 0),
+        days_left: days_left || 90,
+
+      };
+
+      setInstallmentSummary(summary);
+    } catch (err) {
+      console.error("Failed to fetch summary:", err);
+    }
   };
+
 
   const handleCancelPayment = () => {
     setSelectedPayment("");
@@ -99,14 +115,8 @@ useEffect(() => {
   };
 
   const handleProceedToPay = async () => {
-    const totalAmount = unitPrice * quantity;
     try {
-      const response = await createFullPaymentOrder({
-        customer_id,
-        email,
-        price: totalAmount,
-        quantity,
-      });
+      const response = await createFullPaymentOrder({ email, quantity });
 
       if (!response.orders || response.orders.length === 0) {
         setPopup({
@@ -116,9 +126,6 @@ useEffect(() => {
         });
         return;
       }
-
-      let totalPaid = 0;
-      const totalParts = response.orders.length;
 
       for (const order of response.orders) {
         await new Promise((resolve, reject) => {
@@ -130,15 +137,12 @@ useEffect(() => {
             description: `Drone Payment - Part ${order.part_number}`,
             order_id: order.order_id,
             prefill: { email: order.email },
-            handler: function () {
-              totalPaid += order.amount;
-              resolve();
-            },
+            handler: () => resolve(),
             modal: {
-              ondismiss: function () {
+              ondismiss: () => {
                 setPopup({
                   isOpen: true,
-                  message: `Payment cancelled (Part ${order.part_number}). Remaining payment halted.`,
+                  message: `Payment cancelled (Part ${order.part_number}).`,
                   type: "error",
                 });
                 reject();
@@ -152,32 +156,22 @@ useEffect(() => {
         });
       }
 
-      setPopup({
-        isOpen: true,
-        message: ` Full payment of ₹${totalPaid.toLocaleString()} completed in ${totalParts} part(s). Redirecting to Dashboard...`,
-        type: "success",
-      });
-
-      sessionStorage.setItem("just_paid", "true");
-
-      setTimeout(() => {
-        navigate("/customer-dashboard");
-      }, 2500);
+      redirectAfterPayment(`Full payment of ₹${(unitPrice * quantity).toLocaleString()} completed.`);
     } catch (error) {
       setPopup({
         isOpen: true,
-        message: error?.error || "Payment failed.",
+        message: error?.message || "Payment failed.",
         type: "error",
       });
     }
   };
+
 
   const handleCancelInstallment = () => {
     setSelectedPayment("");
     setShowInstallmentPopup(false);
     setInstallmentAmount("");
   };
-
   const handleProceedInstallment = async () => {
     const amount = parseFloat(installmentAmount);
 
@@ -190,57 +184,92 @@ useEffect(() => {
       const data = await createInstallmentPaymentOrder({
         email,
         quantity,
-        installment_amount: amount,
-        total_price: unitPrice * quantity,
+        amount,
+        total_amount: unitPrice * quantity,
       });
 
       const order = data.order;
 
-      if (window.Razorpay) {
-        const options = {
-          key: order.razorpay_key,
-          amount: order.amount * 100,
-          currency: order.currency,
-          name: "Pavaman Aviation Pvt Ltd",
-          description: "Drone Installment Payment",
-          order_id: order.razorepay_order_id,
-          prefill: { email: order.email },
-          notes: {
-            drone_order_id: data.drone_order_id,
-            part: data.installment_number,
-          },
-          handler: function () {
-            setPopup({
-              isOpen: true,
-              message: `Installment payment of ₹${order.amount.toLocaleString()} successful.`,
-              type: "success",
-            });
-            setShowInstallmentPopup(false);
-            setInstallmentAmount("");
-          },
-          modal: {
-            ondismiss: function () {
+      const options = {
+        key: order.razorpay_key,
+        amount: order.amount * 100,
+        currency: order.currency,
+        name: "Pavaman Aviation Pvt Ltd",
+        description: `Installment ${data.installment_number} of Drone Order`,
+        order_id: order.razorpay_order_id,
+        prefill: { email: order.email },
+        notes: {
+          drone_order_id: data.drone_order_id,
+          part: data.installment_number,
+        },
+        handler: async () => {
+          try {
+            const statusRes = await axios.post(
+              `${API_BASE_URL}/payment-status-check`,
+              { payment_type: "installment" },
+              { withCredentials: true }
+            );
+
+            const { remaining_amount = 0 } = statusRes.data;
+
+            if (parseFloat(remaining_amount) <= 0) {
+              redirectAfterPayment(`All installments completed successfully. Redirecting to dashboard...`);
+            } else {
               setPopup({
                 isOpen: true,
-                message: `Installment payment cancelled.`,
-                type: "error",
+                message: `Installment payment of ₹${order.amount.toLocaleString()} successful. ₹${parseFloat(remaining_amount).toLocaleString()} remaining.`,
+                type: "success",
               });
-            },
-          },
-          theme: { color: "#1976d2" },
-        };
+              setShowInstallmentPopup(false);
+              setInstallmentAmount("");
+            }
+          } catch (err) {
+            setPopup({
+              isOpen: true,
+              message: "Payment succeeded, but failed to verify remaining amount.",
+              type: "warning",
+            });
+          }
+        },
+        modal: {
+          ondismiss: () =>
+            setPopup({
+              isOpen: true,
+              message: `Installment payment cancelled.`,
+              type: "error",
+            }),
+        },
+        theme: { color: "#1976d2" },
+      };
 
-        const rzp = new window.Razorpay(options);
-        rzp.open();
-      } else {
-        setInstallmentError("Razorpay SDK not loaded.");
-      }
+      const rzp = new window.Razorpay(options);
+      rzp.open();
     } catch (error) {
-      const errMsg = error?.response?.data?.error || "Failed to create installment order.";
-      setInstallmentError(errMsg);
+      setInstallmentError(error?.message || "Failed to create installment order.");
     }
   };
+  ;
 
+
+  const redirectAfterPayment = (message) => {
+    setPopup({
+      isOpen: true,
+      message,
+      type: "success",
+    });
+    sessionStorage.setItem("just_paid", "true");
+    setTimeout(() => {
+      navigate("/customer-dashboard");
+    }, 2500);
+  };
+
+  const [installmentSummary, setInstallmentSummary] = useState({
+     total_amount: 0,
+    total_paid: 0,
+    remaining: 0,
+    days_left: 90,
+    installment_number: 1
+  });
 
   return (
     <div className='payment-section container'>
@@ -276,6 +305,7 @@ useEffect(() => {
                     if (val < 1) val = 1;
                     setQuantity(val);
                   }}
+                  disabled={isPaymentComplete} 
                   className="quantity-input"
                 />
                 {quantity === 10 && (
@@ -322,55 +352,87 @@ useEffect(() => {
         </div>
 
         {showPopup === "full" && (
-          <div className="pay-popup-overlay">
-            <div className="pay-popup-box">
-              <h3 className="pay-popup-header">Confirm Full Payment</h3>
-              <div className="pay-popup-summary">
-                <p><strong>Number of Drones:</strong> {quantity}</p>
-                <p><strong>Total Amount Payable:</strong> ₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</p>
-              </div>
-              <div className="pay-popup-buttons">
-                <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
-                <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
-              </div>
-            </div>
-          </div>
-        )}
+  <div className="pay-popup-overlay">
+    <div className="pay-popup-box">
+      <h3 className="pay-popup-header">Confirm Full Payment</h3>
+       <table className="popup-summary-table">
+      <tbody>
+        <tr>
+          <td>Number of Drones</td>
+          <td>{quantity}</td>
+        </tr>
+        <tr>
+          <td>Total Amount Payable</td>
+          <td>₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</td>
+        </tr>
+      </tbody>
+    </table>
+      <div className="pay-popup-buttons">
+        <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
+        <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
+      </div>
+    </div>
+  </div>
+)}
 
-        {showInstallmentPopup && (
-          <div className="pay-popup-overlay">
-            <div className="pay-popup-box">
-              <h3 className='pay-popup-header'>Installment Payment</h3>
-              <div className="pay-popup-summary">
-                <p><strong>Number of Drones:</strong> {quantity}</p>
-                <p><strong>Total Amount Payable:</strong> ₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</p>
-              </div>
-              <div className="pay-popup-input-group">
-                <label>Enter Amount to Pay:</label>
-                <input
-                  type="text"
-                  value={installmentAmount}
-                  onChange={(e) => {
-                    setInstallmentAmount(e.target.value);
-                    setInstallmentError("");
-                  }}
-                  placeholder="Enter amount"
-                  className="pay-popup-input"
-                />
-                {installmentError && (
-                  <p className="pay-popup-error">{installmentError}</p>
-                )}
-              </div>
-              <div className="payment-note">
-                <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
-              </div>
-              <div className="pay-popup-buttons">
-                <button className="secondary-button" onClick={handleCancelInstallment}>Cancel</button>
-                <button className="primary-button" onClick={handleProceedInstallment}>Proceed to Pay</button>
-              </div>
-            </div>
-          </div>
+
+      {showInstallmentPopup && (
+  <div className="pay-popup-overlay">
+    <div className="pay-popup-box">
+      <h3 className='pay-popup-header'>Installment Payment</h3>
+      <table className="popup-summary-table">
+  <tbody>
+    <tr>
+      <td>Number of Drones</td>
+      <td>{quantity}</td>
+    </tr>
+    <tr>
+      <td>Total Amount</td>
+      <td>₹{installmentSummary.total_amount.toLocaleString("en-IN")}</td>
+    </tr>
+    <tr>
+      <td>Total Paid</td>
+      <td>₹{installmentSummary.total_paid.toLocaleString("en-IN")}</td>
+    </tr>
+    <tr>
+      <td>Remaining</td>
+      <td>₹{installmentSummary.remaining.toLocaleString("en-IN")}</td>
+    </tr>
+    <tr>
+      <td>Installment #{installmentSummary.installment_number}</td>
+      <td>{installmentSummary.days_left} days left</td>
+    </tr>
+  </tbody>
+</table>
+
+
+      <div className="pay-popup-input-group">
+        <label>Enter Amount to Pay:</label>
+        <input
+          type="text"
+          value={installmentAmount}
+          onChange={(e) => {
+            setInstallmentAmount(e.target.value);
+            setInstallmentError("");
+          }}
+          placeholder="Enter amount"
+          className="pay-popup-input"
+        />
+        {installmentError && (
+          <p className="pay-popup-error">{installmentError}</p>
         )}
+      </div>
+      <div className="payment-note">
+        <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
+      </div>
+      <div className="pay-popup-buttons">
+        <button className="secondary-button" onClick={handleCancelInstallment}>Cancel</button>
+        <button className="primary-button" onClick={handleProceedInstallment}>Proceed to Pay</button>
+      </div>
+    </div>
+  </div>
+)}
+
 
 
         <PopupMessage
