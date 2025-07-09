@@ -48,6 +48,7 @@ const BankNomineeFormPage = () => {
     "Bank of Maharashtra", "Federal Bank", "South Indian Bank", "Karur Vysya Bank"
   ];
 
+
   const handleBankVerify = async () => {
     setLoading(true);
     setBankError("");
@@ -119,42 +120,129 @@ const BankNomineeFormPage = () => {
     setNominees(updated);
   };
 
+  const [otp, setOtp] = useState("");
+  const [showOtpInput, setShowOtpInput] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+
+
   const handleNomineeSubmit = async () => {
     const formData = new FormData();
+    const nomineePayload = [];
 
-    nominees.forEach((n, i) => {
-      formData.append(`nominees[${i}][name]`, n.name);
-      formData.append(`nominees[${i}][relation]`, n.relation);
-      formData.append(`nominees[${i}][dob]`, n.dob);
-      formData.append(`nominees[${i}][gender]`, n.gender);
-      formData.append(`nominees[${i}][id_proof]`, n.id_proof);
-      formData.append(`nominees[${i}][address_proof]`, n.address_proof);
-      formData.append(`nominees[${i}][share_percentage]`, n.share_percentage);
-      formData.append(`nominees[${i}][address_proof_type]`, n.address_proof_type);
+nominees.forEach((n, index) => {
+  const fileIndex = index + 1;  // Start from 1
+  const nomineeData = {
+    first_name: n.name.split(" ")[0] || "",
+    last_name: n.name.split(" ")[1] || "",
+    relation: n.relation,
+    dob: n.dob,
+    gender: n.gender,
+    share: n.share_percentage,
+    address_proof: n.address_proof_type,
+    address_proof_file: `address_${fileIndex}`,
+    id_proof_file: `id_${fileIndex}`
+  };
 
-    });
+  nomineePayload.push(nomineeData);
+
+  formData.append(`address_${fileIndex}`, n.address_proof);
+  formData.append(`id_${fileIndex}`, n.id_proof);
+});
+
+
+    formData.append("nominees", JSON.stringify(nomineePayload));
 
     try {
-      await axios.post(`${API_BASE_URL}/submit-nominee`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/nominee-stage`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
 
       setPopup({
         isOpen: true,
-        message: "Nominee details submitted successfully!",
+        message: "Nominees staged successfully. OTP sent to your registered mobile.",
         type: "success",
       });
+      setShowOtpInput(true);
+
+      // Optional: redirect or show OTP input
     } catch (err) {
       setPopup({
         isOpen: true,
-        message: "Failed to submit nominee details.",
+        message: err.response?.data?.error || "Failed to submit nominee details.",
         type: "error",
       });
     }
-
   };
 
+
+  const handleVerifyOtp = async () => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/verify_nominee_batch_otp`,
+        { otp },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      setPopup({
+        isOpen: true,
+        message: "OTP verified. You can now save nominees.",
+        type: "success",
+      });
+      setOtpVerified(true);
+    } catch (err) {
+      setPopup({
+        isOpen: true,
+        message: err.response?.data?.error || "Failed to verify OTP.",
+        type: "error",
+      });
+    }
+  };
+  const handleSaveStagedNominees = async () => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/save_staged_nominees`,
+        {},
+        { withCredentials: true }
+      );
+
+      setPopup({
+        isOpen: true,
+        message: "Nominee details saved successfully.",
+        type: "success",
+      });
+
+      // Optional: Reset state
+      setNominees([
+        {
+          name: "",
+          relation: "",
+          dob: "",
+          gender: "",
+          share_percentage: "",
+          id_proof: null,
+          id_proof_name: "",
+          address_proof_type: "",
+          address_proof: null,
+          address_proof_name: "",
+        },
+      ]);
+      setShowOtpInput(false);
+      setOtpVerified(false);
+      setOtp("");
+    } catch (err) {
+      setPopup({
+        isOpen: true,
+        message: err.response?.data?.error || "Failed to save nominees.",
+        type: "error",
+      });
+    }
+  };
 
   const removeNominee = (index) => {
     const updated = [...nominees];
@@ -409,6 +497,27 @@ const BankNomineeFormPage = () => {
           </div>
         </div>
       )}
+      {showOtpInput && (
+        <div className="form-section otp-verification">
+          <label className="kyc-label">Enter OTP sent to your registered mobile number</label>
+          <input
+            type="text"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            placeholder="Enter OTP"
+            className="kyc-input"
+          />
+          <div className="otp-btns">
+            <button className="primary-button" onClick={handleVerifyOtp}>Verify OTP</button>
+            {otpVerified && (
+              <button className="primary-button" onClick={handleSaveStagedNominees}>
+                Save Nominees
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <PopupMessage
         isOpen={popup.isOpen}
         message={popup.message}
