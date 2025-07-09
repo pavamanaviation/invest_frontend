@@ -89,6 +89,8 @@ const VerifyOtp = () => {
             },
           });
         } else {
+        sessionStorage.setItem("is_logged_in", "true");
+
           navigate("/customer-dashboard");
         }
       } else {
@@ -109,27 +111,6 @@ const VerifyOtp = () => {
     }
   };
 
-
-
-
-  // const handleResendOtp = async () => {
-  //   setLoading(true);
-  //   try {
-  //     const payload = email ? { email } : { mobile_no };
-  //     const res = await registerCustomer(payload);
-  //     //   alert(res.message || "OTP resent.");
-  //     setPopup({ isOpen: true, message: "OTP resent. " || res.message, type: "success" });
-
-  //     setTimer(120); // Reset timer
-  //   } catch (error) {
-  //     //   alert(error?.error || "Failed to resend OTP.");
-  //     console.error(error);
-  //     setPopup({ isOpen: true, message: "Failed to resend OTP.", type: "error" });
-
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleResendOtp = async () => {
   setLoading(true);
