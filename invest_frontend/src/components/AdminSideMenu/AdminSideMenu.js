@@ -10,6 +10,7 @@ import {
 } from 'react-icons/md';
 import { IoPeopleCircle } from "react-icons/io5";
 import { FaStreetView } from 'react-icons/fa6';
+import { GiDeliveryDrone } from "react-icons/gi";
 
 const AdminSideMenu = ({ isAdmin = false, modelNames = [] }) => {
   const [isTeamOpen, setIsTeamOpen] = useState(false);
@@ -66,6 +67,14 @@ const hasAccess = (model) => isAdmin || model === "Dashboard" || modelNames.incl
       path: `${routePrefix}-access`
     }
   ];
+  if (isAdmin) {
+  sidebarItems.push({
+    model: "DroneDetails",
+    label: "Drone Details",
+    icon: <GiDeliveryDrone className="admin-icon" />,
+    path: `${routePrefix}-drone-details`
+  });
+}
 
   return (
     <div className="admin-side-menu">
@@ -114,6 +123,8 @@ const hasAccess = (model) => isAdmin || model === "Dashboard" || modelNames.incl
             </div>
           )}
         </div>
+
+        
       )}
     </div>
   );

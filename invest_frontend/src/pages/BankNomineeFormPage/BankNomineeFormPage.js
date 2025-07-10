@@ -24,7 +24,8 @@ const BankNomineeFormPage = () => {
   // NOMINEE DETAILS
   const [nominees, setNominees] = useState([
     {
-      name: "",
+      first_name: "",
+      last_name: "",
       relation: "",
       dob: "",
       gender: "",
@@ -45,7 +46,7 @@ const BankNomineeFormPage = () => {
     "Union Bank of India", "IDBI Bank", "Kotak Mahindra Bank",
     "Indian Bank", "Yes Bank", "IndusInd Bank", "Bank of India",
     "UCO Bank", "Central Bank of India", "Indian Overseas Bank",
-    "Bank of Maharashtra", "Federal Bank", "South Indian Bank", "Karur Vysya Bank"
+    "Bank of Maharashtra", "Federal Bank", "South Indian Bank", "Karur Vysya Bank", "Others"
   ];
 
 
@@ -104,7 +105,8 @@ const BankNomineeFormPage = () => {
     setNominees([
       ...nominees,
       {
-        name: "",
+        first_name: "",
+        last_name: "",
         relation: "",
         dob: "",
         gender: "",
@@ -123,32 +125,31 @@ const BankNomineeFormPage = () => {
   const [otp, setOtp] = useState("");
   const [showOtpInput, setShowOtpInput] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-
-
+  // Stage Nominees
   const handleNomineeSubmit = async () => {
     const formData = new FormData();
     const nomineePayload = [];
 
-nominees.forEach((n, index) => {
-  const fileIndex = index + 1;  // Start from 1
-  const nomineeData = {
-    first_name: n.name.split(" ")[0] || "",
-    last_name: n.name.split(" ")[1] || "",
-    relation: n.relation,
-    dob: n.dob,
-    gender: n.gender,
-    share: n.share_percentage,
-    address_proof: n.address_proof_type,
-    address_proof_file: `address_${fileIndex}`,
-    id_proof_file: `id_${fileIndex}`
-  };
+    nominees.forEach((n, index) => {
+      const fileIndex = index + 1;
+      const nomineeData = {
+        first_name: n.first_name,
+        last_name: n.last_name,
+        relation: n.relation,
+        dob: n.dob,
+        gender: n.gender,
+        share: n.share_percentage,
+        address_proof: n.address_proof_type,
+        address_proof_file: `address_${fileIndex}`,
+        id_proof_file: `id_${fileIndex}`,
+      };
 
-  nomineePayload.push(nomineeData);
 
-  formData.append(`address_${fileIndex}`, n.address_proof);
-  formData.append(`id_${fileIndex}`, n.id_proof);
-});
+      nomineePayload.push(nomineeData);
 
+      formData.append(`address_${fileIndex}`, n.address_proof);
+      formData.append(`id_${fileIndex}`, n.id_proof);
+    });
 
     formData.append("nominees", JSON.stringify(nomineePayload));
 
@@ -164,8 +165,6 @@ nominees.forEach((n, index) => {
         type: "success",
       });
       setShowOtpInput(true);
-
-      // Optional: redirect or show OTP input
     } catch (err) {
       setPopup({
         isOpen: true,
@@ -175,11 +174,11 @@ nominees.forEach((n, index) => {
     }
   };
 
-
+  // Verify OTP
   const handleVerifyOtp = async () => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/verify_nominee_batch_otp`,
+        `${API_BASE_URL}/nominee-verify`,
         { otp },
         {
           withCredentials: true,
@@ -203,10 +202,11 @@ nominees.forEach((n, index) => {
       });
     }
   };
+
   const handleSaveStagedNominees = async () => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/save_staged_nominees`,
+        `${API_BASE_URL}/nominee-save`,
         {},
         { withCredentials: true }
       );
@@ -342,16 +342,28 @@ nominees.forEach((n, index) => {
                   <>
                     <div className="form-row">
                       <div className="form-group">
-                        <label className="kyc-label">Nominee Name</label>
+                        <label className="kyc-label">First Name</label>
                         <input
                           type="text"
-                          value={nominee.name}
-                          onChange={(e) => updateNominee(index, "name", e.target.value)}
+                          value={nominee.first_name}
+                          onChange={(e) => updateNominee(index, "first_name", e.target.value)}
                           className="kyc-input"
-                          placeholder="Enter nominee name"
+                          placeholder="Enter first name"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label className="kyc-label">Last Name</label>
+                        <input
+                          type="text"
+                          value={nominee.last_name}
+                          onChange={(e) => updateNominee(index, "last_name", e.target.value)}
+                          className="kyc-input"
+                          placeholder="Enter last name"
                         />
                       </div>
 
+                    </div>
+                    <div className="form-row">
                       <div className="form-group">
                         <label className="kyc-label">Relation</label>
                         <input
@@ -362,9 +374,6 @@ nominees.forEach((n, index) => {
                           placeholder="Enter relation"
                         />
                       </div>
-                    </div>
-                    <div className="form-row">
-
                       <div className="form-group">
                         <label className="kyc-label">Date of Birth</label>
                         <input
@@ -374,6 +383,10 @@ nominees.forEach((n, index) => {
                           className="kyc-input"
                         />
                       </div>
+
+                    </div>
+
+                    <div className="form-row">
 
                       <div className="form-group">
                         <label className="kyc-label">Gender</label>
@@ -400,10 +413,6 @@ nominees.forEach((n, index) => {
                           </label>
                         </div>
                       </div>
-                    </div>
-
-                    <div className="form-row">
-
                       <div className="form-group">
                         <label className="kyc-label">(%) of Share</label>
                         <input
@@ -417,29 +426,13 @@ nominees.forEach((n, index) => {
                         />
                       </div>
 
-                      <div className="form-group">
-                        <label className="kyc-label">ID Proof (only PAN)</label>
-                        <div className="kyc-input custom-upload-wrapper">
-                          <label htmlFor={`id-proof-${index}`} className="custom-file-button">Choose File</label>
-                          <input
-                            type="file"
-                            id={`id-proof-${index}`}
-                            onChange={(e) => {
-                              const file = e.target.files[0];
-                              updateNominee(index, "id_proof", file);
-                              updateNominee(index, "id_proof_name", file?.name || "");
-                            }}
-                            className="hidden-file-input"
-                            accept=".pdf,.png,.jpg,.jpeg"
-                          />
-                          {nominee.id_proof_name && <div className="file-name-display">{nominee.id_proof_name}</div>}
-                        </div>
-                      </div>
+                     
 
                     </div>
 
-                    <div>
-                    </div>
+                 
+                    <div className="form-row">
+
                     <div className="form-group">
                       <label className="kyc-label">Address Proof Type</label>
                       <select
@@ -474,7 +467,28 @@ nominees.forEach((n, index) => {
                         {nominee.address_proof_name && <div className="file-name-display">{nominee.address_proof_name}</div>}
                       </div>
                     </div>
-
+                    
+                    </div>
+   <div className="form-row">
+                       <div className="form-group">
+                        <label className="kyc-label">ID Proof (only PAN)</label>
+                        <div className="kyc-input custom-upload-wrapper">
+                          <label htmlFor={`id-proof-${index}`} className="custom-file-button">Choose File</label>
+                          <input
+                            type="file"
+                            id={`id-proof-${index}`}
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              updateNominee(index, "id_proof", file);
+                              updateNominee(index, "id_proof_name", file?.name || "");
+                            }}
+                            className="hidden-file-input"
+                            accept=".pdf,.png,.jpg,.jpeg"
+                          />
+                          {nominee.id_proof_name && <div className="file-name-display">{nominee.id_proof_name}</div>}
+                        </div>
+                      </div>
+                    </div>
 
 
                   </>
@@ -498,25 +512,31 @@ nominees.forEach((n, index) => {
         </div>
       )}
       {showOtpInput && (
-        <div className="form-section otp-verification">
-          <label className="kyc-label">Enter OTP sent to your registered mobile number</label>
-          <input
-            type="text"
-            value={otp}
-            onChange={(e) => setOtp(e.target.value)}
-            placeholder="Enter OTP"
-            className="kyc-input"
-          />
-          <div className="otp-btns">
-            <button className="primary-button" onClick={handleVerifyOtp}>Verify OTP</button>
-            {otpVerified && (
-              <button className="primary-button" onClick={handleSaveStagedNominees}>
-                Save Nominees
+        <div className="otp-modal-overlay">
+          <div className="otp-modal">
+            <h3>Enter OTP</h3>
+            <p>OTP sent to your registered mobile number</p>
+            <input
+              type="text"
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
+              placeholder="Enter OTP"
+              className="kyc-input otp-input"
+            />
+            <div className="otp-btns">
+              <button className="primary-button" onClick={handleVerifyOtp}>
+                Verify OTP
               </button>
-            )}
+              {otpVerified && (
+                <button className="primary-button" onClick={handleSaveStagedNominees}>
+                  Save Nominees
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
+
 
       <PopupMessage
         isOpen={popup.isOpen}

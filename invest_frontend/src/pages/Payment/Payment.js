@@ -264,7 +264,7 @@ const Payment = () => {
   };
 
   const [installmentSummary, setInstallmentSummary] = useState({
-     total_amount: 0,
+    total_amount: 0,
     total_paid: 0,
     remaining: 0,
     days_left: 90,
@@ -305,7 +305,7 @@ const Payment = () => {
                     if (val < 1) val = 1;
                     setQuantity(val);
                   }}
-                  disabled={isPaymentComplete} 
+                  disabled={isPaymentComplete}
                   className="quantity-input"
                 />
                 {quantity === 10 && (
@@ -352,86 +352,86 @@ const Payment = () => {
         </div>
 
         {showPopup === "full" && (
-  <div className="pay-popup-overlay">
-    <div className="pay-popup-box">
-      <h3 className="pay-popup-header">Confirm Full Payment</h3>
-       <table className="popup-summary-table">
-      <tbody>
-        <tr>
-          <td>Number of Drones</td>
-          <td>{quantity}</td>
-        </tr>
-        <tr>
-          <td>Total Amount Payable</td>
-          <td>₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</td>
-        </tr>
-      </tbody>
-    </table>
-      <div className="pay-popup-buttons">
-        <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
-        <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
-      </div>
-    </div>
-  </div>
-)}
-
-
-      {showInstallmentPopup && (
-  <div className="pay-popup-overlay">
-    <div className="pay-popup-box">
-      <h3 className='pay-popup-header'>Installment Payment</h3>
-      <table className="popup-summary-table">
-  <tbody>
-    <tr>
-      <td>Number of Drones</td>
-      <td>{quantity}</td>
-    </tr>
-    <tr>
-      <td>Total Amount</td>
-      <td>₹{installmentSummary.total_amount.toLocaleString("en-IN")}</td>
-    </tr>
-    <tr>
-      <td>Total Paid</td>
-      <td>₹{installmentSummary.total_paid.toLocaleString("en-IN")}</td>
-    </tr>
-    <tr>
-      <td>Remaining</td>
-      <td>₹{installmentSummary.remaining.toLocaleString("en-IN")}</td>
-    </tr>
-    <tr>
-      <td>Installment #{installmentSummary.installment_number}</td>
-      <td>{installmentSummary.days_left} days left</td>
-    </tr>
-  </tbody>
-</table>
-
-
-      <div className="pay-popup-input-group">
-        <label>Enter Amount to Pay:</label>
-        <input
-          type="text"
-          value={installmentAmount}
-          onChange={(e) => {
-            setInstallmentAmount(e.target.value);
-            setInstallmentError("");
-          }}
-          placeholder="Enter amount"
-          className="pay-popup-input"
-        />
-        {installmentError && (
-          <p className="pay-popup-error">{installmentError}</p>
+          <div className="pay-popup-overlay">
+            <div className="pay-popup-box">
+              <h3 className="pay-popup-header">Confirm Full Payment</h3>
+              <table className="popup-summary-table">
+                <tbody>
+                  <tr>
+                    <td>Number of Drones</td>
+                    <td>{quantity}</td>
+                  </tr>
+                  <tr>
+                    <td>Total Amount Payable</td>
+                    <td>₹{(unitPrice * quantity).toLocaleString("en-IN")}/-</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div className="pay-popup-buttons">
+                <button className="secondary-button" onClick={handleCancelPayment}>Cancel</button>
+                <button className="primary-button" onClick={handleProceedToPay}>Proceed to Pay</button>
+              </div>
+            </div>
+          </div>
         )}
-      </div>
-      <div className="payment-note">
-        <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
-      </div>
-      <div className="pay-popup-buttons">
-        <button className="secondary-button" onClick={handleCancelInstallment}>Cancel</button>
-        <button className="primary-button" onClick={handleProceedInstallment}>Proceed to Pay</button>
-      </div>
-    </div>
-  </div>
-)}
+
+
+        {showInstallmentPopup && (
+          <div className="pay-popup-overlay">
+            <div className="pay-popup-box">
+              <h3 className='pay-popup-header'>Installment Payment</h3>
+              <table className="popup-summary-table">
+                <tbody>
+                  <tr>
+                    <td>Number of Drones</td>
+                    <td>{quantity}</td>
+                  </tr>
+                  <tr>
+                    <td>Total Amount</td>
+                    <td>₹{installmentSummary.total_amount.toLocaleString("en-IN")}</td>
+                  </tr>
+                  <tr>
+                    <td>Total Paid</td>
+                    <td>₹{installmentSummary.total_paid.toLocaleString("en-IN")}</td>
+                  </tr>
+                  <tr>
+                    <td>Remaining</td>
+                    <td>₹{installmentSummary.remaining.toLocaleString("en-IN")}</td>
+                  </tr>
+                  <tr>
+                    <td>Installment #{installmentSummary.installment_number}</td>
+                    <td>{installmentSummary.days_left} days left</td>
+                  </tr>
+                </tbody>
+              </table>
+
+
+              <div className="pay-popup-input-group">
+                <label>Enter Amount to Pay:</label>
+                <input
+                  type="text"
+                  value={installmentAmount}
+                  onChange={(e) => {
+                    setInstallmentAmount(e.target.value);
+                    setInstallmentError("");
+                  }}
+                  placeholder="Enter amount"
+                  className="pay-popup-input"
+                />
+                {installmentError && (
+                  <p className="pay-popup-error">{installmentError}</p>
+                )}
+              </div>
+              <div className="payment-note">
+                <strong>Note:</strong> I undertake to pay the above balance amount within <strong>90 days.</strong> In case I fail to pay the amount, <strong>Pavaman Aviation Pvt Ltd</strong> will deduct <strong>Rs 10,000/-</strong> towards its operational expenses and refund the balance within <strong>45 days</strong> after I request in writing for cancellation of this application to purchase TEJAS Drone.
+              </div>
+              <div className="pay-popup-buttons">
+                <button className="secondary-button" onClick={handleCancelInstallment}>Cancel</button>
+                <button className="primary-button" onClick={handleProceedInstallment}>Proceed to Pay</button>
+              </div>
+            </div>
+          </div>
+        )}
 
 
 
