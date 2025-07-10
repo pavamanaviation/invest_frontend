@@ -21,6 +21,7 @@ import RoleKYCDetails from './AdminPages/RoleKYC/RoleKYC';
 import RoleNomineeDetails from './AdminPages/RoleNominee/RoleNominee';
 import AdminCustomerAllDetails from './AdminPages/AdminCustomerAllDetails/AdminCustomerAllDetails';
 import AdminCustomerAllMoreDetails from './AdminPages/AdminCustomerAllDetails/AdminCustomerAllMoreDetails';
+import AdminViewDroneDetails from './AdminPages/AdminDroneDetails/AdminDroneDetails';
 
 
 const AdminRoutes = () => {
@@ -52,6 +53,7 @@ const AdminRoutes = () => {
       <Route path="/role-nominee-details" element={<AdminLayout><RoleNomineeDetails/></AdminLayout>} />
       <Route path="/admin-customer-more-details" element={<AdminLayout><AdminCustomerAllDetails/></AdminLayout>} />
       <Route path="/admin-customer-more-all-details" element={<AdminLayout><AdminCustomerAllMoreDetails/></AdminLayout>} />
+      <Route path="/admin-drone-details" element={<AdminLayout><AdminViewDroneDetails/></AdminLayout>} />
 
 
     </Routes>
