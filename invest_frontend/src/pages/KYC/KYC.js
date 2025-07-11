@@ -54,6 +54,17 @@ const KYCPage = () => {
     const [state, setState] = useState("");
     const [country, setCountry] = useState("");
     const [city, setCity] = useState("");
+    const [permanentAddress, setPermanentAddress] = useState("");
+    const [presentAddress, setPresentAddress] = useState("");
+    const [sameAsPermanent, setSameAsPermanent] = useState(false);
+    const [presentPincode, setPresentPincode] = useState("");
+    const [presentLocationData, setPresentLocationData] = useState({
+        city: "",
+        mandal: "",
+        district: "",
+        state: "",
+        country: ""
+    });
 
     const [signFileName, setSignatureFileName] = useState("");
 
@@ -130,7 +141,7 @@ const KYCPage = () => {
                     console.log("Fetched location:", location);
                     setLocationData({
                         city: location.city || "",
-                        mandal: location.block || "", // ensure block goes into locationData.mandal
+                        mandal: location.mandal || "", // ensure mandal goes into locationData.mandal
                         district: location.district || "",
                         state: location.state || "",
                         country: location.country || "",
@@ -139,7 +150,7 @@ const KYCPage = () => {
                     setDistrict(location.district || "");
                     setState(location.state || "");
                     setCountry(location.country || "");
-                    setMandal(location.block || "");
+                    setMandal(location.mandal || "");
 
                 } catch (err) {
                     setLocationData({
@@ -158,6 +169,31 @@ const KYCPage = () => {
         fetchLocation();
     }, [pincode]);
 
+    useEffect(() => {
+        const fetchPresentLocation = async () => {
+            if (!sameAsPermanent && presentPincode.length === 6) {
+                try {
+                    const location = await getLocationByPincode(presentPincode);
+                    setPresentLocationData({
+                        city: location.city || "",
+                        mandal: location.mandal || "",
+                        district: location.district || "",
+                        state: location.state || "",
+                        country: location.country || "",
+                    });
+                } catch (err) {
+                    setPresentLocationData({
+                        city: "",
+                        mandal: "",
+                        district: "",
+                        state: "",
+                        country: "",
+                    });
+                }
+            }
+        };
+        fetchPresentLocation();
+    }, [presentPincode, sameAsPermanent]);
 
     const handlePanUpload = async () => {
         if (!panFile) {
@@ -166,7 +202,7 @@ const KYCPage = () => {
         }
 
         try {
-            const { status, data } = await verifyPanDocument( panFile);
+            const { status, data } = await verifyPanDocument(panFile);
 
             if (status === 200 && data.status === "success") {
                 setKycStatus(prev => ({ ...prev, pan: 1 }));
@@ -208,7 +244,7 @@ const KYCPage = () => {
         }
 
         try {
-            const { status, data } = await verifyAadharDocument( aadharFile);
+            const { status, data } = await verifyAadharDocument(aadharFile);
 
             if (status === 200 && data.status === "success") {
                 setKycStatus(prev => ({ ...prev, aadhar: 1 }));
@@ -246,23 +282,35 @@ const KYCPage = () => {
     const handlePersonalSubmit = async () => {
         try {
             const payload = {
+                customer_id: customerId,
                 fullname: firstName,
                 mobile_no: mobile,
                 email: email,
                 dob: dob,
                 gender: gender,
-                profession: profession,
-                designation: designation,
-                company_name: companyName,
-                address: address,
+                  profession: profession,
+                  designation: designation,
+                  company_name: companyName,
+                address: permanentAddress,
                 pincode: pincode,
-                city: city,
-                mandal: mandal,
-                district: district,
-                state: state,
-                country: country,
-                address: address,
+                city: locationData.city,
+                mandal: locationData.mandal,
+                district: locationData.district,
+                state: locationData.state,
+                country: locationData.country,
+                same_address: sameAsPermanent
             };
+
+            if (!sameAsPermanent) {
+                payload.present_address = presentAddress;
+                payload.present_pincode = presentPincode;
+                payload.present_city = presentLocationData.city;
+                payload.present_mandal = presentLocationData.mandal;
+                payload.present_district = presentLocationData.district;
+                payload.present_state = presentLocationData.state;
+                payload.present_country = presentLocationData.country;
+            }
+
 
             const res = await submitPersonalDetails(payload);
 
@@ -609,11 +657,11 @@ const KYCPage = () => {
                                 <input className="kyc-input" type="text" placeholder="Pincode" value={pincode} onChange={(e) => setPincode(e.target.value)} maxLength={6} />
                             </div>
                             <div className="kyc-column">
-                                <label className="kyc-label">City</label>
+                                <label className="kyc-label">City/Village</label>
                                 <input className="kyc-input" type="text" placeholder="City" value={locationData.city} onChange={(e) => setPincode(e.target.value)} />
                             </div>
                             <div className="kyc-column">
-                                <label className="kyc-label">Mandal</label>
+                                <label className="kyc-label">Mandal/Block</label>
                                 <input
                                     className="kyc-input"
                                     type="text"
@@ -621,6 +669,7 @@ const KYCPage = () => {
                                     value={mandal}
                                     onChange={(e) => setMandal(e.target.value)}
                                 />
+
 
                                 {/* <input className="kyc-input" type="text" placeholder="Mandal" value={mandal} onChange={(e) => setMandal(e.target.value)} /> */}
 
@@ -642,12 +691,93 @@ const KYCPage = () => {
                             </div>
                         </div>
                         {/* Address */}
+                        {/* Permanent Address */}
                         <div className="kyc-row">
                             <div className="kyc-column-full">
-                                <label className="kyc-label">Address</label>
-                                <textarea className="kyc-input" placeholder="(Flatno./ Hno./ Street)" value={address} onChange={(e) => setAddress(e.target.value)} />
+                                <label className="kyc-label">Permanent Address</label>
+                                <textarea
+                                    className="kyc-input"
+                                    placeholder="(Flat No. / H.No. / Street / Area)"
+                                    value={permanentAddress}
+                                    onChange={(e) => setPermanentAddress(e.target.value)}
+                                />
                             </div>
                         </div>
+
+                        {/* Checkbox */}
+                        <div className="kyc-row">
+                            <label>
+                                <input
+                                    type="checkbox"
+                                    checked={sameAsPermanent}
+                                    onChange={(e) => {
+                                        setSameAsPermanent(e.target.checked);
+                                        if (e.target.checked) {
+                                            setPresentAddress(permanentAddress); // auto-copy
+                                        } else {
+                                            setPresentAddress(""); // reset if unchecked
+                                        }
+                                    }}
+                                />{" "}
+                                Is your present address same as permanent address?
+                            </label>
+                        </div>
+
+                        {/* Present Address */}
+                        {!sameAsPermanent && (
+                            <>
+                                <div className="kyc-row">
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present Pincode</label>
+                                        <input
+                                            className="kyc-input"
+                                            type="text"
+                                            placeholder="Pincode"
+                                            value={presentPincode}
+                                            maxLength={6}
+                                            onChange={(e) => setPresentPincode(e.target.value)}
+                                        />
+                                    </div>
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present City/Village</label>
+                                        <input className="kyc-input" value={presentLocationData.city} disabled />
+                                    </div>
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present Mandal/Block</label>
+                                        <input className="kyc-input" value={presentLocationData.mandal} disabled />
+                                    </div>
+                                </div>
+
+                                <div className="kyc-row three-columns">
+
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present District</label>
+                                        <input className="kyc-input" value={presentLocationData.district} disabled />
+                                    </div>
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present State</label>
+                                        <input className="kyc-input" value={presentLocationData.state} disabled />
+                                    </div>
+                                    <div className="kyc-column">
+                                        <label className="kyc-label">Present Country</label>
+                                        <input className="kyc-input" value={presentLocationData.country} disabled />
+                                    </div>
+                                </div>
+
+
+                                <div className="kyc-row">
+                                    <div className="kyc-column-full">
+                                        <label className="kyc-label">Present Address</label>
+                                        <textarea
+                                            className="kyc-input"
+                                            placeholder="(Flat No. / H.No. / Street / Area)"
+                                            value={presentAddress}
+                                            onChange={(e) => setPresentAddress(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
 
                         {/* Next Step Button */}
                         <button className="primary-button kyc-submit-btn" onClick={handlePersonalSubmit}>
