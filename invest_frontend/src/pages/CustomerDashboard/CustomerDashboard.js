@@ -262,7 +262,7 @@ const CustomerDashboard = () => {
                                 className="primary-button invest-button"
                                 onClick={() => navigate("/plan-a-invest")}
 
-                                disabled={!kycCompleted}
+                                // disabled={!kycCompleted}
                             >
                                 Invest Now
                             </button>
@@ -292,7 +292,7 @@ const CustomerDashboard = () => {
                                 className="primary-button invest-button"
                                 onClick={() => navigate("/plan-b-invest")}
 
-                                disabled={!kycCompleted}
+                                // disabled={!kycCompleted}
 
                             >
                                 Invest Now
