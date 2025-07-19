@@ -58,3 +58,21 @@ export const createInstallmentPaymentOrder = async ({
     throw error.response?.data || { message: "Installment order creation failed." };
   }
 };
+
+
+export const createInvoice = async (addressType) => {
+  const response = await axios.post(
+    `${API_BASE_URL}/create-invoice`,
+    {
+      address_type: addressType,
+    },
+    {
+      withCredentials: true,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  return response.data; // contains invoice_number, date, message etc.
+};
