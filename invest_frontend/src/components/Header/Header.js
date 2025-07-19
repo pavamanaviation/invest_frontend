@@ -73,6 +73,9 @@ const Header = () => {
                                 <div className="dropdown-menu">
                                     <Link to="/my-account">My Account</Link>
                                     <Link to="/payment">My Payments</Link>
+                                    <Link to="/Receipts">Receipts</Link>
+                                    <Link to="/Invoices">Invoices</Link>
+                                    
                                     <Link to="">Scheme Details</Link>
 
                                     <Link onClick={handleLogout}>Logout</Link>

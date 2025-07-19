@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import "./Payment.css";
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder } from "../../apis/paymentApi";
+import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder , createInvoice } from "../../apis/paymentApi";
 import API_BASE_URL from "../../../src/config";
 import axios from "axios";
 
@@ -24,6 +24,9 @@ const Payment = () => {
   const [remainingAmount, setRemainingAmount] = useState(null);
   const [dueDate, setDueDate] = useState(null);
   const [daysLeft, setDaysLeft] = useState(null);
+  const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
+  const [showAddressPopup, setShowAddressPopup] = useState(false);
+  const [selectedAddressType, setSelectedAddressType] = useState("");
 
   useEffect(() => {
     const fetchLatestPaymentStatus = async () => {
@@ -67,18 +70,28 @@ const Payment = () => {
   }, [customer_id]);
 
 
+const handleFullPayment = async () => {
+  if (!isPaymentComplete && latestOrderId) {
+    // Block new payment if previous one is still pending
+    setPopup({
+      isOpen: true,
+      message: `You already have a pending payment (Order ID: ${latestOrderId}). Please complete that first.`,
+      type: "info",
+    });
+    return;
+  }
 
-  const handleFullPayment = async () => {
-    if (isPaymentComplete) {
-      setPopup({
-        isOpen: true,
-        message: "Previous order fully paid. You can now proceed with a new order.",
-        type: "success",
-      });
-    }
-    setSelectedPayment("full");
-    setShowPopup("full");
-  };
+  if (isPaymentComplete) {
+    setPopup({
+      isOpen: true,
+      message: "Previous order fully paid. You can now proceed with a new order.",
+      type: "success",
+    });
+  }
+
+  setSelectedPayment("full");
+  setShowPopup("full");
+};
 
   const handleInstallmentPayment = async () => {
     setSelectedPayment("installment");
@@ -115,6 +128,7 @@ const Payment = () => {
   };
 
   const handleProceedToPay = async () => {
+    setIsPaymentProcessing(true);
     try {
       const response = await createFullPaymentOrder({ email, quantity });
 
@@ -163,6 +177,8 @@ const Payment = () => {
         message: error?.message || "Payment failed.",
         type: "error",
       });
+    } finally {
+      setIsPaymentProcessing(false);
     }
   };
 
@@ -179,6 +195,7 @@ const Payment = () => {
       setInstallmentError("Minimum installment amount must be ₹1,00,000.");
       return;
     }
+    setIsPaymentProcessing(true);
 
     try {
       const data = await createInstallmentPaymentOrder({
@@ -247,6 +264,9 @@ const Payment = () => {
     } catch (error) {
       setInstallmentError(error?.message || "Failed to create installment order.");
     }
+    finally {
+      setIsPaymentProcessing(false);
+    }
   };
   ;
 
@@ -257,11 +277,42 @@ const Payment = () => {
       message,
       type: "success",
     });
-    sessionStorage.setItem("just_paid", "true");
+
+    setTimeout(() => {
+      setShowAddressPopup(true);  // Show address selection popup
+      sessionStorage.setItem("just_paid", "true");
+    }, 2000);
+  };
+
+  const handleInvoiceGenerate = async () => {
+
+  try {
+    const data = await createInvoice(selectedAddressType); // API call
+    const { message, invoice_number, invoice_date } = data;
+
+    setPopup({
+      isOpen: true,
+      message: `✅ ${message}\nInvoice No: ${invoice_number}\nDate: ${invoice_date}`,
+      type: "success",
+    });
+
+    setShowAddressPopup(false);
+
     setTimeout(() => {
       navigate("/customer-dashboard");
-    }, 2500);
-  };
+    }, 3000);
+  } catch (error) {
+    console.error("Invoice generation error:", error);
+    const errMsg = error?.response?.data?.error || "Failed to generate invoice";
+    setPopup({
+      isOpen: true,
+      message: `❌ ${errMsg}`,
+      type: "error",
+    });
+  }
+};
+
+
 
   const [installmentSummary, setInstallmentSummary] = useState({
     total_amount: 0,
@@ -295,7 +346,7 @@ const Payment = () => {
               <td>Number of Drones Applicable for Purchase</td>
               <td>
                 <input
-                  type="text"
+                  type="number"
                   min={1}
                   max={10}
                   value={quantity}
@@ -305,7 +356,9 @@ const Payment = () => {
                     if (val < 1) val = 1;
                     setQuantity(val);
                   }}
-                  disabled={isPaymentComplete}
+                  // disabled={isPaymentProcessing}
+                    disabled={isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
+
                   className="quantity-input"
                 />
                 {quantity === 10 && (
@@ -320,13 +373,13 @@ const Payment = () => {
               <td>Total Amount Payable (Rs)</td>
               <td>₹{(quantity * unitPrice).toLocaleString("en-IN")}/-</td>
             </tr>
-            {isPaymentComplete && (
+            {/* {isPaymentComplete && (
               <tr>
                 <td colSpan={3} style={{ textAlign: "center", color: "green" }}>
                   Previous Order ({latestOrderId}) payment is complete.
                 </td>
               </tr>
-            )}
+            )} */}
           </tbody>
         </table>
 
@@ -338,7 +391,7 @@ const Payment = () => {
           <button
             className='primary-button full-payment-btn'
             onClick={handleFullPayment}
-            disabled={selectedPayment === "installment"}
+             disabled={selectedPayment === "installment" || isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
           >
             Full Payment
           </button>
@@ -433,6 +486,48 @@ const Payment = () => {
           </div>
         )}
 
+        {showAddressPopup && (
+          <div className="pay-popup-overlay">
+            <div className="pay-popup-box">
+              <h3 className="pay-popup-header">Agreement Address Selection</h3>
+              <p>Which address should we use to generate your agreement?</p>
+
+              <div className="address-options">
+                <label>
+                  <input
+                    type="radio"
+                    name="address"
+                    value="present"
+                    checked={selectedAddressType === "present"}
+                    onChange={() => setSelectedAddressType("present")}
+                  />
+                  Present Address
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="address"
+                    value="permanent"
+                    checked={selectedAddressType === "permanent"}
+                    onChange={() => setSelectedAddressType("permanent")}
+                  />
+                  Permanent Address
+                </label>
+              </div>
+
+              <div className="pay-popup-buttons">
+
+                <button
+                  className="primary-button"
+                  onClick={handleInvoiceGenerate}
+                  disabled={!selectedAddressType}
+                >
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
 
         <PopupMessage
