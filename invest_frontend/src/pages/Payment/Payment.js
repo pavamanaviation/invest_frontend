@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import "./Payment.css";
 import { useNavigate } from 'react-router-dom';
 import PopupMessage from "../../components/PopupMessage/PopupMessage";
-import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder , createInvoice } from "../../apis/paymentApi";
+import { createFullPaymentOrder, getPaymentStatus, createInstallmentPaymentOrder, createInvoice } from "../../apis/paymentApi";
 import API_BASE_URL from "../../../src/config";
 import axios from "axios";
 
@@ -27,6 +27,9 @@ const Payment = () => {
   const [isPaymentProcessing, setIsPaymentProcessing] = useState(false);
   const [showAddressPopup, setShowAddressPopup] = useState(false);
   const [selectedAddressType, setSelectedAddressType] = useState("");
+  const [isGeneratingInvoices, setIsGeneratingInvoices] = useState(false);
+  const [droneOrderId, setorderid] = useState("");
+  const [paytype, setpaytype] = useState("");
 
   useEffect(() => {
     const fetchLatestPaymentStatus = async () => {
@@ -59,6 +62,11 @@ const Payment = () => {
         }
 
         setLatestOrderId(data.drone_order_id);
+        setorderid(data.drone_order_id);
+        setpaytype(data.payment_type);
+        if (data.payment_status === 1 && data.total_invoice_status !== 1) {
+          setShowAddressPopup(true);
+      }
       } catch (error) {
         console.error("Error checking payment status:", error);
       }
@@ -70,28 +78,28 @@ const Payment = () => {
   }, [customer_id]);
 
 
-const handleFullPayment = async () => {
-  if (!isPaymentComplete && latestOrderId) {
-    // Block new payment if previous one is still pending
-    setPopup({
-      isOpen: true,
-      message: `You already have a pending payment (Order ID: ${latestOrderId}). Please complete that first.`,
-      type: "info",
-    });
-    return;
-  }
+  const handleFullPayment = async () => {
+    if (!isPaymentComplete && latestOrderId) {
+      // Block new payment if previous one is still pending
+      setPopup({
+        isOpen: true,
+        message: `You already have a pending payment (Order ID: ${latestOrderId}). Please complete that first.`,
+        type: "info",
+      });
+      return;
+    }
 
-  if (isPaymentComplete) {
-    setPopup({
-      isOpen: true,
-      message: "Previous order fully paid. You can now proceed with a new order.",
-      type: "success",
-    });
-  }
+    if (isPaymentComplete) {
+      setPopup({
+        isOpen: true,
+        message: "Previous order fully paid. You can now proceed with a new order.",
+        type: "success",
+      });
+    }
 
-  setSelectedPayment("full");
-  setShowPopup("full");
-};
+    setSelectedPayment("full");
+    setShowPopup("full");
+  };
 
   const handleInstallmentPayment = async () => {
     setSelectedPayment("installment");
@@ -169,8 +177,11 @@ const handleFullPayment = async () => {
           rzp.open();
         });
       }
+      setorderid(response.drone_order_id);
+      setpaytype(response.payment_type);
 
       redirectAfterPayment(`Full payment of ₹${(unitPrice * quantity).toLocaleString()} completed.`);
+
     } catch (error) {
       setPopup({
         isOpen: true,
@@ -285,33 +296,133 @@ const handleFullPayment = async () => {
   };
 
   const handleInvoiceGenerate = async () => {
+    setIsGeneratingInvoices(true);
 
+   try {
+  setIsGeneratingInvoices(true);
+
+  // Step 0: Check payment status
+  const paymentStatusRes = await axios.post(
+    `${API_BASE_URL}/payment-status-check`,
+    { customer_id, drone_order_id: droneOrderId, payment_type: paytype },
+    {
+      withCredentials: true,
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+
+  const drone_order_id = paymentStatusRes.data?.drone_order_id;
+  const totalInvoiceStatus = paymentStatusRes.data?.total_invoice_status;
+
+  const commonData = {
+    customer_id,
+    address_type: selectedAddressType,
+    drone_order_id,
+  };
+
+  // Step 1: Generate DRONE invoice (optional)
+  let droneInvoiceNumber = "";
   try {
-    const data = await createInvoice(selectedAddressType); // API call
-    const { message, invoice_number, invoice_date } = data;
+    const droneResponse = await axios.post(
+      `${API_BASE_URL}/create-invoice`,
+      {
+        ...commonData,
+        invoice_for: "drone",
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
+    if (droneResponse.data.uni_no) {
+      droneInvoiceNumber = droneResponse.data.uni_no;
+    }
+  } catch (droneErr) {
+    const msg = droneErr?.response?.data?.message;
+    if (!msg?.toLowerCase()?.includes("already exists")) {
+      throw droneErr;
+    }
+  }
+
+  // Step 2: If total_invoice_status = 0, proceed with Accessory & AMC
+  if (totalInvoiceStatus === 0) {
+    const uinList = droneInvoiceNumber
+      ? droneInvoiceNumber.split(",").map((u) => u.trim())
+      : [];
+
+    const dependentPayloads = [
+      {
+        ...commonData,
+        invoice_for: "accessory",
+        uin_list: uinList,
+      },
+      {
+        ...commonData,
+        invoice_for: "amc",
+        uin_list: uinList,
+      },
+    ];
+
+    const dependentResponses = await Promise.all(
+      dependentPayloads.map((p) =>
+        axios
+          .post(`${API_BASE_URL}/create-invoice`, p, {
+            withCredentials: true,
+            headers: {
+              "Content-Type": "application/json",
+            },
+          })
+          .catch((err) => err.response) // Catch and process individual invoice errors
+      )
+    );
+
+    const accessoryRes = dependentResponses[0].data;
+    const amcRes = dependentResponses[1].data;
+
+    const accessoryInvoiceNumber =
+      accessoryRes.invoice_number || accessoryRes.invoice_no || "";
+    const amcInvoiceNumber = amcRes.invoice_number || amcRes.invoice_no || "";
+
+    // Step 3: Show popup success message
     setPopup({
       isOpen: true,
-      message: `✅ ${message}\nInvoice No: ${invoice_number}\nDate: ${invoice_date}`,
+      message: `
+      DRONE Invoice: ${droneInvoiceNumber || "Already exists"}
+      ACCESSORY Invoice: ${accessoryInvoiceNumber || "Already exists"}
+      AMC Invoice: ${amcInvoiceNumber || "Already exists"}
+      Invoices generated successfully.`,
       type: "success",
     });
-
-    setShowAddressPopup(false);
-
-    setTimeout(() => {
-      navigate("/customer-dashboard");
-    }, 3000);
-  } catch (error) {
-    console.error("Invoice generation error:", error);
-    const errMsg = error?.response?.data?.error || "Failed to generate invoice";
+  } else {
+    // total_invoice_status = 1, nothing to do
     setPopup({
       isOpen: true,
-      message: `❌ ${errMsg}`,
-      type: "error",
+      message: `All invoices are already generated.`,
+      type: "info",
     });
   }
-};
 
+  // Final redirect
+  setShowAddressPopup(false);
+  setTimeout(() => {
+    navigate("/customer-dashboard");
+  }, 3000);
+} catch (error) {
+  console.error("Invoice generation failed:", error);
+  const errData = error?.response?.data;
+  const msg = errData?.error || errData?.message || "Invoice generation failed.";
+  setPopup({
+    isOpen: true,
+    message: msg,
+    type: "error",
+  });
+} finally {
+  setIsGeneratingInvoices(false);
+}
+}
 
 
   const [installmentSummary, setInstallmentSummary] = useState({
@@ -357,7 +468,7 @@ const handleFullPayment = async () => {
                     setQuantity(val);
                   }}
                   // disabled={isPaymentProcessing}
-                    disabled={isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
+                  disabled={isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
 
                   className="quantity-input"
                 />
@@ -391,7 +502,7 @@ const handleFullPayment = async () => {
           <button
             className='primary-button full-payment-btn'
             onClick={handleFullPayment}
-             disabled={selectedPayment === "installment" || isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
+            disabled={selectedPayment === "installment" || isPaymentProcessing || (!isPaymentComplete && latestOrderId)}
           >
             Full Payment
           </button>
@@ -520,9 +631,9 @@ const handleFullPayment = async () => {
                 <button
                   className="primary-button"
                   onClick={handleInvoiceGenerate}
-                  disabled={!selectedAddressType}
+                  disabled={!selectedAddressType || isGeneratingInvoices}
                 >
-                  Submit
+                  {isGeneratingInvoices ? "Generating..." : "Submit"}
                 </button>
               </div>
             </div>

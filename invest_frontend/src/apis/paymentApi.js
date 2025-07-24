@@ -60,11 +60,12 @@ export const createInstallmentPaymentOrder = async ({
 };
 
 
-export const createInvoice = async (addressType) => {
+export const createInvoice = async (addressType, invoiceFor) => {
   const response = await axios.post(
     `${API_BASE_URL}/create-invoice`,
     {
       address_type: addressType,
+      invoice_for: invoiceFor,
     },
     {
       withCredentials: true,
@@ -74,5 +75,5 @@ export const createInvoice = async (addressType) => {
     }
   );
 
-  return response.data; // contains invoice_number, date, message etc.
+  return response.data;
 };
